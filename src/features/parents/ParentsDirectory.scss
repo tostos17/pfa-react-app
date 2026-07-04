@@ -1,0 +1,20 @@
+.parents-directory-container {
+  width: 100%;
+
+  .filter-card {
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+  }
+
+  .premium-table {
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+    overflow: hidden;
+
+    .capitalize-text {
+      text-transform: capitalize;
+    }
+  }
+}

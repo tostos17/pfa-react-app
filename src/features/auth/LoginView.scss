@@ -1,0 +1,99 @@
+@import '../../styles/_variables.scss';
+
+.login-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: $font-sans;
+  background-color: $bg-dark-core;
+
+  .brand-panel {
+    flex: 1.2;
+    background: linear-gradient(135deg, rgba(13, 15, 18, 0.85) 0%, rgba(20, 24, 33, 0.95) 100%),
+                url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1200') no-repeat center center;
+    background-size: cover;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #ffffff;
+
+    @media (max-width: 992px) {
+      display: none; // Graceful collapse for mobile viewports
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: $accent-green;
+    }
+
+    .brand-manifesto {
+      h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 20px;
+        letter-spacing: -1.5px;
+        
+        span { color: $accent-green; }
+      }
+      p {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.7);
+        max-width: 480px;
+      }
+    }
+    
+    .brand-footer {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+
+  .form-panel {
+    flex: 1;
+    background-color: $bg-light-canvas;
+    @include flex-center;
+    padding: 40px;
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: #ffffff;
+      border-radius: $radius-smooth;
+      padding: 40px 32px;
+      box-shadow: $card-shadow;
+
+      .card-header {
+        margin-bottom: 32px;
+        h2 {
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: $text-primary;
+          margin-bottom: 6px;
+        }
+        p {
+          color: $text-secondary;
+          font-size: 0.95rem;
+        }
+      }
+
+      .submit-btn {
+        background-color: $bg-dark-core;
+        border-color: $bg-dark-core;
+        color: #ffffff;
+        height: 48px;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: $transition-smooth;
+
+        &:hover, &:focus {
+          background-color: $accent-green !important;
+          border-color: $accent-green !important;
+          color: #ffffff !important;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+.update-profile-container {
+  width: 100%;
+
+  .action-bar {
+    margin-bottom: 16px;
+  }
+
+  .update-card {
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+    
+    .ant-card-head {
+      border-bottom: 1px solid #f5f5f5;
+      font-weight: 600;
+    }
+  }
+
+  .global-submission-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    cursor: not-allowed;
+
+    .ant-spin-text {
+      margin-top: 12px;
+      font-weight: 500;
+    }
+  }
+}

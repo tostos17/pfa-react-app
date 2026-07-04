@@ -1,0 +1,119 @@
+@import '../../styles/_variables.scss';
+
+.register-player-container {
+  font-family: $font-sans;
+  position: relative; // Retains overlay targeting anchor point cleanly
+
+  .page-header {
+    margin-bottom: 32px;
+
+    .header-title {
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: $text-primary;
+        margin-bottom: 4px;
+        letter-spacing: -0.5px;
+      }
+      p {
+        color: $text-secondary;
+        font-size: 0.95rem;
+      }
+    }
+  }
+
+  .premium-form-layout {
+    .form-card {
+      background: #ffffff;
+      border-radius: $radius-smooth;
+      box-shadow: $card-shadow;
+      border: 1px solid $border-color;
+
+      .ant-card-head {
+        border-bottom: 1px solid $border-color;
+        padding: 0 24px;
+        min-height: 56px;
+
+        .ant-card-head-title {
+          font-size: 1rem;
+          font-weight: 700;
+          color: $text-primary;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .card-icon {
+            color: $accent-green;
+          }
+        }
+      }
+
+      .ant-card-body {
+        padding: 24px;
+      }
+
+      .ant-form-item-label > label {
+        font-weight: 600;
+        color: #344054;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+      }
+
+      .ant-input, .ant-input-number, .ant-select-selector, .ant-picker {
+        border-radius: 6px !important;
+        border-color: #d0d5dd;
+        
+        &:hover, &:focus {
+          border-color: $accent-green !important;
+          box-shadow: 0 0 0 2px rgba(0, 176, 116, 0.1) !important;
+        }
+      }
+    }
+
+    // Fixed Sticky Anchor Strategy for Desktops
+    .sticky-sidebar-column {
+      @media (min-width: 1200px) {
+        position: sticky;
+        top: 24px;
+        height: max-content;
+      }
+    }
+
+    .commit-btn {
+      background-color: $bg-dark-core;
+      border-color: $bg-dark-core;
+      height: 48px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      transition: $transition-smooth;
+      color: #ffffff;
+
+      &:hover, &:focus {
+        background-color: $accent-green !important;
+        border-color: $accent-green !important;
+        color: #ffffff !important;
+      }
+    }
+  }
+
+  .global-submission-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    cursor: not-allowed;
+    
+    .ant-spin-text {
+      margin-top: 12px;
+      font-weight: 500;
+      color: #1890ff;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+// src/styles/_variables.scss
+
+// Colors
+$bg-dark-core: #0d0f12;       // Pitch slate for sidebars/login backgrounds
+$bg-light-canvas: #f4f6f8;   // Premium neutral white canvas
+$text-primary: #1e2229;      // Executive bold text
+$text-secondary: #637381;    // Muted slate captions
+$accent-green: #00b074;      // Pitch/Stadium Green for call-to-actions & badges
+$accent-green-hover: #009662;
+$border-color: #e5e8eb;
+$card-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+
+// Typography & Layouts
+$font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+$radius-smooth: 8px;
+$transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

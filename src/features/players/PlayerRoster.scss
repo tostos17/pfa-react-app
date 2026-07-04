@@ -1,0 +1,63 @@
+.player-roster-view-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 4px;
+  box-sizing: border-box;
+
+  .roster-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .roster-filter-card {
+    background: #fdfdfd;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  }
+
+  .roster-table-scroll-container {
+    flex: 1;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+
+    // Explicitly fixes missing scrollbar bug inside AntD table viewports
+    .ant-table-body {
+      overflow-y: auto !important;
+      
+      &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: #d9d9d9;
+        border-radius: 4px;
+        &:hover {
+          background: #bfbfbf;
+        }
+      }
+    }
+  }
+
+  .biometric-text-stack {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .roster-avatar-frame {
+    border: 2px solid #f0f2f5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+}
