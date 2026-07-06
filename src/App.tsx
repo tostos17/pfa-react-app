@@ -11,6 +11,7 @@ import { ParentsDirectory } from './features/parents/ParentsDirectory';
 import { AcademicCalendar } from './features/calendar/AcademicCalendar';
 import { PlayerRoster } from './features/players/PlayerRoster';
 import { FinanceLedger } from './features/finance/FinanceLedger'; // ◄ 1. Import your ledger component here
+import { InvoicesPage } from './features/finance/InvoicesPage';
 
 const UnauthorizedView = () => (
   <div style={{ padding: 50, textAlign: 'center' }}>
@@ -57,28 +58,32 @@ const router = createBrowserRouter([
               },
               {
                 path: '/players/view',
-                element: <PlayerRoster />, 
+                element: <PlayerRoster />,
               },
               {
-                path: '/players/profile/:playerId', 
+                path: '/players/profile/:playerId',
                 element: <PlayerProfileView />,
               },
               {
-                path: '/players/profile/edit/:playerId', 
+                path: '/players/profile/edit/:playerId',
                 element: <UpdatePlayerProfile />,
               },
               {
-                path: '/parents/view', 
+                path: '/parents/view',
                 element: <ParentsDirectory />,
               },
               {
-                path: '/settings/calendar', 
+                path: '/settings/calendar',
                 element: <AcademicCalendar />,
               },
               {
                 path: '/finance/ledger', // ◄ 2. Add this route configuration
-                element: <FinanceLedger />, 
-              }
+                element: <FinanceLedger />,
+              },
+              {
+                path: '/finance/invoices', // ◄ 2. Add the clean matching path route
+                element: <InvoicesPage />,
+              },
             ],
           },
         ],

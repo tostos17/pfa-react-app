@@ -45,7 +45,9 @@ export const menuConfiguration: MenuItem[] = [
       { key: '/finance/ledger', label: 'Accounts Ledger', path: '/finance/ledger', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'] },
       { key: '/finances/payments', label: 'Record Payments', path: '/finances/payments', roles: ['ROLE_ADMIN'] },
       { key: '/finances/expenses', label: 'Record Expenses', path: '/finances/expenses', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'] },
-      { key: '/finances/transactions', label: 'View All Transactions', path: '/finances/transactions', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'] }
+      { key: '/finances/transactions', label: 'View All Transactions', path: '/finances/transactions', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'] },
+      { key: 'finance-invoices', label: 'Invoices', path: '/finance/invoices', roles: ['ROLE_ADMIN', 'ROLE_FINANCE'],
+    }
     ]
   },
   // Add this directly inside your central configuration array inside src/config/menuConfig.ts
@@ -57,4 +59,5 @@ export const menuConfiguration: MenuItem[] = [
       { key: '/settings/calendar', label: 'Academic Calendar', path: '/settings/calendar', roles: ['ROLE_ADMIN'] }
     ]
   }
+    
 ];

@@ -5,6 +5,7 @@ import { PlayerRoster } from '../features/players/PlayerRoster';
 import { RegisterPlayer } from '../features/players/RegisterPlayer';
 import { FinanceLedger } from '../features/finance/FinanceLedger';
 import { ParentsDirectory } from '../features/parents/ParentsDirectory';
+import { InvoicesPage } from '../features/finance/InvoicesPage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -20,6 +21,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="players/register" element={<RegisterPlayer />} />
           <Route path="/dashboard/parents" element={<ParentsDirectory />} />
           <Route path="/finance/ledger" element={<FinanceLedger />} />
+          <Route path="/finance/invoices" element={<InvoicesPage />} />
           
           {/* Catch-all pattern dropping back gracefully to index root */}
           <Route path="*" element={<Navigate to="/players/roster" replace />} />
