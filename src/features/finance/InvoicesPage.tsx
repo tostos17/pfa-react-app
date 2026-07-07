@@ -317,10 +317,30 @@ export const InvoicesPage: React.FC = () => {
         destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={handleCreateInvoice} style={{ marginTop: '16px' }}>
-          <Form.Item name="accountId" label="Select Athlete Target Account">
-            <Select showSearch loading={loadingAccounts} placeholder="Choose player ledger profile" optionFilterProp="children" allowClear>
+          <Form.Item 
+            name="accountId" 
+            label="Select Athlete Target Account"
+            rules={[{ required: true, message: 'Please select a target account' }]}
+          >
+            <Select 
+              showSearch 
+              loading={loadingAccounts} 
+              placeholder="Choose player ledger profile" 
+              allowClear
+              filterOption={(input, option) => {
+                if (!option) return false;
+                // Safely extract the visible string content or custom data attributes from the option
+                const childrenText = String(option.children || '').toLowerCase();
+                const valueText = String(option.value || '').toLowerCase();
+                const searchInput = input.toLowerCase();
+                
+                return childrenText.includes(searchInput) || valueText.includes(searchInput);
+              }}
+            >
               {ledgerAccounts.map(item => (
-                <Option key={item.accountId} value={item.accountId}>{item.playerName} ({item.category})</Option>
+                <Option key={item.accountId} value={item.accountId}>
+                  {item.playerName} ({item.category})
+                </Option>
               ))}
             </Select>
           </Form.Item>
