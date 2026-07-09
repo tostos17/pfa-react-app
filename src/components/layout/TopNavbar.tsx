@@ -3,6 +3,7 @@ import { Avatar, Dropdown, Tag } from 'antd';
 import type { MenuProps } from 'antd';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { LogoutButton } from '../../features/auth/LogoutButton';
 
 interface AuthUser {
   username: string;
@@ -45,9 +46,12 @@ export const TopNavbar: React.FC = () => {
             <span className="user-name">{user?.fullName || user?.username || 'Admin'}</span>
             <Tag color="#00b074" className="role-tag">{displayRole}</Tag>
           </div>
+          <div className="header-actions">
+            <LogoutButton />
+          </div>
           <Dropdown menu={{ items: dropdownItems }} trigger={['click']} placement="bottomRight">
-            <Avatar 
-              icon={<UserOutlined />} 
+            <Avatar
+              icon={<UserOutlined />}
               style={{ background: '#1e2229', cursor: 'pointer' }}
             />
           </Dropdown>
