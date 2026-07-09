@@ -8,7 +8,6 @@ import { PlayerFormDrawer } from './PlayerFormDrawer';
 import './PlayerRoster.scss';
 
 const { Text, Title } = Typography;
-const { Option } = Select;
 
 // Exactly matches the backend PlayerProfileResponse payload mapping structure
 interface PlayerProfileResponse {

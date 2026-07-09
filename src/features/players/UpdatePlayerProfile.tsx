@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Form, Input, InputNumber, Select, Button, Card, Row, Col, Upload, Space, Spin, Divider, message } from 'antd';
+import { Form, InputNumber, Select, Button, Card, Row, Col, Upload, Spin, Divider, message } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined, UploadOutlined, PlusOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd';
 import { apiClient } from '../../config/axios';

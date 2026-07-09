@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Row, Col, Avatar, Typography, Tag, Tabs, Descriptions, Button, Skeleton, Space, message, Divider } from 'antd';
-import { ArrowLeftOutlined, UserOutlined, PhoneOutlined, EnvironmentOutlined, HeartOutlined, TrophyOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, UserOutlined, PhoneOutlined, HeartOutlined, TrophyOutlined } from '@ant-design/icons';
 import { apiClient } from '../../config/axios';
 import './PlayerProfileView.scss';
 

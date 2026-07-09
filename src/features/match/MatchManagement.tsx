@@ -9,7 +9,6 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { apiClient } from '../../config/axios';
-import dayjs from 'dayjs';
 
 const { Text, Title } = Typography;
 const { Option } = Select;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Card, Row, Col, Statistic, Tag, Input, Button, Modal, Form, Select, InputNumber, Space, Typography, message, Checkbox, Spin, Tabs, DatePicker } from 'antd';
-import { FileTextOutlined, PlusOutlined, DollarOutlined, SolutionOutlined, CheckCircleOutlined, AuditOutlined, FilterOutlined } from '@ant-design/icons';
+import { FileTextOutlined, PlusOutlined, SolutionOutlined, AuditOutlined, FilterOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { apiClient } from '../../config/axios';
 import dayjs from 'dayjs';
@@ -93,7 +93,7 @@ export const FinanceLedger: React.FC = () => {
     const [submittingExpense, setSubmittingExpense] = useState<boolean>(false);
 
     const [auditSummary, setAuditSummary] = useState<ExpenseAuditSummary | null>(null);
-    const [loadingAudit, setLoadingAudit] = useState<boolean>(false);
+    const [, setLoadingAudit] = useState<boolean>(false);
 
     const [filterStatus, setFilterStatus] = useState<string>('');
     const [filterCategory, setFilterCategory] = useState<string>('');
@@ -515,7 +515,7 @@ export const FinanceLedger: React.FC = () => {
 
             <Modal title="Payment Allocation History Ledgers" open={allocationsModalOpen} onCancel={() => setAllocationsModalOpen(false)} footer={[<Button key="close" onClick={() => setAllocationsModalOpen(false)}>Close Ledger</Button>]} width={750}>
                 <Table dataSource={allocations} rowKey="id" loading={loadingAllocations} size="small" pagination={{ pageSize: 8 }} scroll={{ x: 'max-content' }} columns={[
-                    { title: 'Allocation Key ID', dataIndex: 'id', render: (text, record) => <Space direction="vertical" size={0}><Text strong>Alloc #{record.id}</Text><Text type="secondary" style={{ fontSize: '11px' }}>Payment Reference: #{record.paymentId}</Text></Space> },
+                    { title: 'Allocation Key ID', dataIndex: 'id', render: (record) => <Space direction="vertical" size={0}><Text strong>Alloc #{record.id}</Text><Text type="secondary" style={{ fontSize: '11px' }}>Payment Reference: #{record.paymentId}</Text></Space> },
                     { title: 'Category', dataIndex: 'invoiceCategory', render: (category) => category ? <Tag color="blue">{category}</Tag> : '—' },
                     { title: 'Description', dataIndex: 'invoiceDescription', render: (desc) => <Text style={{ fontSize: '13px' }}>{desc || '—'}</Text> },
                     { title: 'Amount Allocated', dataIndex: 'amountAllocated', align: 'right', render: (val) => <Text style={{ color: '#00b074', fontWeight: 600 }}>₦{val.toLocaleString()}</Text> }
