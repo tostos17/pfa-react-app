@@ -24,7 +24,7 @@ export const DashboardLayout: React.FC = () => {
         className="sidebar-container" 
       >
         <div className="brand-logo-zone"> 
-          <h2 className="logo-text">{collapsed ? 'PFA' : 'PRO FOOTBALL'}</h2> 
+          <h2 className="logo-text">{collapsed ? 'PFA' : 'PIONEERS FOOTBALL ACADEMY'}</h2> 
         </div>
         {/* FIXED: Replaced hardcoded menu item blocks with security-vetted component */}
         <SidebarMenu /> 

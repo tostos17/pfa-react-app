@@ -12,6 +12,8 @@ import { AcademicCalendar } from './features/calendar/AcademicCalendar';
 import { PlayerRoster } from './features/players/PlayerRoster';
 import { FinanceLedger } from './features/finance/FinanceLedger'; // ◄ 1. Import your ledger component here
 import { InvoicesPage } from './features/finance/InvoicesPage';
+import { InformationHubAdmin } from './features/admin/InformationHubAdmin';
+import { MatchManagement } from './features/match/MatchManagement';
 
 const UnauthorizedView = () => (
   <div style={{ padding: 50, textAlign: 'center' }}>
@@ -77,12 +79,20 @@ const router = createBrowserRouter([
                 element: <AcademicCalendar />,
               },
               {
-                path: '/finance/ledger', // ◄ 2. Add this route configuration
+                path: '/finance/ledger', 
                 element: <FinanceLedger />,
               },
               {
-                path: '/finance/invoices', // ◄ 2. Add the clean matching path route
+                path: '/finance/invoices', 
                 element: <InvoicesPage />,
+              },
+              {
+                path: '/matches/dashboard', 
+                element: <MatchManagement />, 
+              },
+              {
+                path: '/info/news', 
+                element: <InformationHubAdmin />,
               },
             ],
           },

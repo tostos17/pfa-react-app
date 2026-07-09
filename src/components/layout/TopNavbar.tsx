@@ -36,7 +36,7 @@ export const TopNavbar: React.FC = () => {
   return (
     <header className="top-navbar">
       <div className="navbar-left">
-        <span className="environment-badge">ACADEMY CONSOLE</span>
+        <span className="environment-badge">ADMINISTRATIVE CONSOLE</span>
       </div>
 
       <div className="navbar-right">

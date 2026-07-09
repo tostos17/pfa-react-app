@@ -1,0 +1,71 @@
+name: Continuous Deployment - PFA Frontend
+
+on:
+  push:
+    branches: [ "master" ] # Triggers the pipeline only on commits pushed to main
+
+jobs:
+  build-and-ship:
+    name: Build Image and Deploy to AWS EC2
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, Tag, and Push Docker Image to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        IMAGE_TAG: latest
+      run: |
+        # Build the production optimized image using our Dockerfile multi-stage framework
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        
+        # Push the image to AWS cloud registry
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: SSH Deploy to EC2 Instance
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        envs: ECR_REGISTRY,ECR_REPOSITORY
+        script: |
+          # Ensure Docker is installed on the EC2 host instance
+          if ! command -v docker &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y docker.io
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo usermod -aG docker $USER
+          fi
+
+          # Authenticate host instance Docker daemon against AWS ECR
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+
+          # Stop and remove any previously running frontend container instances
+          docker stop pfa-frontend-container || true
+          docker rm pfa-frontend-container || true
+
+          # Pull down the freshly baked image from ECR
+          docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+
+          # Run the container mapping NGINX port 80 natively to the public web
+          docker run -d \
+            --name pfa-frontend-container \
+            -p 80:80 \
+            --restart always \
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest

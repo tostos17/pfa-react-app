@@ -38,6 +38,14 @@ export const menuConfiguration: MenuItem[] = [
     ]
   },
   {
+    key: 'match-management',
+    label: 'Match Center',
+    roles: ['ROLE_ADMIN'],
+    children: [
+      { key: '/matches/dashboard', label: 'Manage Matches', path: '/matches/dashboard', roles: ['ROLE_ADMIN', 'ROLE_COACH', 'ROLE_DIRECTOR'] }
+    ]
+  },
+  {
     key: 'finance-management',
     label: 'Finance Management',
     roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'],
@@ -50,7 +58,14 @@ export const menuConfiguration: MenuItem[] = [
     }
     ]
   },
-  // Add this directly inside your central configuration array inside src/config/menuConfig.ts
+  {
+    key: 'information-management',
+    label: 'Information Management',
+    roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'],
+    children: [
+      { key: '/info/news', label: 'News', path: '/info/news', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'] }
+    ]
+  },
   {
     key: 'system-settings',
     label: 'System Configurations',
