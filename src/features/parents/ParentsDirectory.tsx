@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Table, Input, Button, Card, Row, Col, Space, Typography, message } from 'antd';
-import { SearchOutlined, ReloadOutlined, PlusOutlined, EditOutlined, PhoneOutlined } from '@ant-design/icons';
+import { SearchOutlined, ReloadOutlined, PlusOutlined, EditOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { apiClient } from '../../config/axios';
 import { ParentFormDrawer } from './ParentFormDrawer';
@@ -10,6 +11,7 @@ const { Text } = Typography;
 
 export interface ParentData {
   id: number;
+  username?: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -17,7 +19,11 @@ export interface ParentData {
   address?: string;
 }
 
-export const ParentsDirectory: React.FC = () => {
+interface ParentsDirectoryProps {
+  openCreateOnLoad?: boolean;
+}
+
+export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOnLoad = false }) => {
   const [parents, setParents] = useState<ParentData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
@@ -25,6 +31,9 @@ export const ParentsDirectory: React.FC = () => {
   // Drawer visibility controls
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [selectedParent, setSelectedParent] = useState<ParentData | null>(null);
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
@@ -66,11 +75,19 @@ export const ParentsDirectory: React.FC = () => {
     fetchParents();
   }, []);
 
+  useEffect(() => {
+    if (openCreateOnLoad) {
+      setSelectedParent(null);
+      setDrawerOpen(true);
+    }
+  }, [openCreateOnLoad]);
+
   const handleTableChange = (newPagination: TablePaginationConfig) => {
     fetchParents(newPagination.current || 1, newPagination.pageSize || 10, search);
   };
 
   const handleOpenCreate = () => {
+    navigate('/dashboard/parents/register');
     setSelectedParent(null);
     setDrawerOpen(true);
   };
@@ -78,6 +95,14 @@ export const ParentsDirectory: React.FC = () => {
   const handleOpenEdit = (parent: ParentData) => {
     setSelectedParent(parent);
     setDrawerOpen(true);
+  };
+
+  const handleOpenChildrenRoster = (parent: ParentData) => {
+    const targetUsername = parent.username || `${parent.firstName}.${parent.lastName}`.toLowerCase();
+
+    navigate(`/parents/my-roster/${encodeURIComponent(targetUsername)}`, {
+      state: { parentName: `${parent.lastName}, ${parent.firstName}`, username: targetUsername },
+    });
   };
 
   const columns: ColumnsType<ParentData> = [
@@ -113,15 +138,24 @@ export const ParentsDirectory: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 90,
+      width: 140,
       align: 'center',
       fixed: 'right',
       render: (_, record) => (
-        <Button 
-          type="text" 
-          icon={<EditOutlined style={{ color: '#1890ff' }} />} 
-          onClick={() => handleOpenEdit(record)}
-        />
+        <Space size="small">
+          <Button
+            size="small"
+            icon={<TeamOutlined style={{ color: '#722ed1' }} />}
+            onClick={() => handleOpenChildrenRoster(record)}
+          >
+            Children
+          </Button>
+          <Button 
+            type="text" 
+            icon={<EditOutlined style={{ color: '#1890ff' }} />} 
+            onClick={() => handleOpenEdit(record)}
+          />
+        </Space>
       ),
     },
   ];
@@ -175,7 +209,13 @@ export const ParentsDirectory: React.FC = () => {
 
       <ParentFormDrawer 
         visible={drawerOpen} 
-        onClose={() => setDrawerOpen(false)} 
+        onClose={() => {
+          setDrawerOpen(false);
+          setSelectedParent(null);
+          if (location.pathname === '/dashboard/parents/register') {
+            navigate('/dashboard/parents');
+          }
+        }} 
         parentData={selectedParent} 
         onSuccess={() => fetchParents(pagination.current)}
       />

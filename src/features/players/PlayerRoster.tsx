@@ -245,7 +245,7 @@ export const PlayerRoster: React.FC = () => {
           loading={loading}
           onChange={handleTableChange}
           bordered={false}
-          scroll={{ x: 1200, y: 'calc(100vh - 360px)' }} // Dynamically snaps height to prevent window clipping
+          scroll={{ x: 1100 }}
           className="premium-roster-table"
         />
       </div>

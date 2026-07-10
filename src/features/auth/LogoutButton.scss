@@ -1,0 +1,24 @@
+@import '../../styles/_variables.scss';
+
+.logout-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  background: transparent;
+  color: $text-secondary;
+  cursor: pointer;
+  font: inherit;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background: rgba($accent-green, 0.08);
+    color: $accent-green;
+  }
+
+  &.danger {
+    color: #d64545;
+  }
+}

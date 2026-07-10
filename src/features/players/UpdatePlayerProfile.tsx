@@ -21,7 +21,7 @@ export const UpdatePlayerProfile: React.FC = () => {
   useEffect(() => {
     const fetchCurrentData = async () => {
       try {
-        const response = await apiClient.get(`/api/v1/players/${playerId}`);
+        const response = await apiClient.get(`/players/${playerId}`);
         if (response.data?.success && response.data?.body) {
           const p = response.data.body;
           
@@ -79,7 +79,7 @@ export const UpdatePlayerProfile: React.FC = () => {
         formData.append('passportPhoto', fileList[0].originFileObj);
       }
 
-      const response = await apiClient.put(`/api/v1/players/${playerId}`, formData, {
+      const response = await apiClient.put(`/players/${playerId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
