@@ -1,118 +1,74 @@
 // src/components/Layout/DashboardLayout.scss
 @import '../../styles/_variables.scss';
 
-.dashboard-shell {
+.main-layout-shell {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.top-navbar {
+  height: 70px;
+  background-color: #ffffff;
+  border-bottom: 1px solid $border-color;
+  padding: 0 24px;
   display: flex;
-  height: 100vh;       
-  max-height: 100vh;   
-  overflow: hidden;    
-  background-color: $bg-light-canvas;
+  justify-content: space-between;
+  align-items: center;
 
-  .sidebar-panel {
-    width: 260px;
-    background-color: $bg-dark-core;
+  .navbar-left {
     display: flex;
-    flex-direction: column;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-    transition: $transition-smooth;
+    align-items: center;
+    gap: 12px;
 
-    .sidebar-brand {
-      height: 70px;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
-      .brand-title {
-        color: #ffffff;
-        font-weight: 800;
-        font-size: 1.1rem;
-        letter-spacing: -0.5px;
-        
-        span { color: $accent-green; }
-      }
+    /* Desktop Viewport Defaults */
+    .mobile-hamburger-btn {
+      display: none !important; // Hide mobile drawer trigger on desktop
     }
 
-    .sidebar-menu-wrapper {
-      flex: 1;
-      padding: 16px 0;
-      overflow-y: auto;
-
-      // Ant Design inline custom overrides to match the premium athletic aesthetic
-      .ant-menu-dark {
-        background: transparent !important;
-        border: none !important;
-
-        .ant-menu-item-selected {
-          background-color: $accent-green !important;
-          color: #ffffff !important;
-        }
-        .ant-menu-submenu-title:hover, 
-        .ant-menu-item:hover {
-          color: $accent-green !important;
-        }
-      }
+    .desktop-toggle-btn {
+      display: inline-flex !important; // Show collapse toggle on desktop
     }
   }
 
-  .viewport-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0; 
-    height: 100vh;     // ◄ Force the main container lane to respect the screen size
-    overflow: hidden;
+  .environment-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: $text-secondary;
+    letter-spacing: 1px;
+    background: #f4f6f8;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+}
 
-    .top-navbar {
-      height: 70px;
-      background-color: #ffffff;
-      border-bottom: 1px solid $border-color;
-      padding: 0 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+/* Mobile & Tablet Viewport Breakpoint */
+@media (max-width: 991px) {
+  .desktop-sider {
+    display: none !important; // Hide fixed sidebar on mobile
+  }
 
-      .environment-badge {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: $text-secondary;
-        letter-spacing: 1px;
-        background: #f4f6f8;
-        padding: 4px 8px;
-        border-radius: 4px;
+  .top-navbar {
+    padding: 0 16px !important;
+
+    .navbar-left {
+      .mobile-hamburger-btn {
+        display: inline-flex !important; // Show mobile drawer trigger
       }
 
-      .user-profile-trigger {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+      .desktop-toggle-btn {
+        display: none !important; // Hide collapse toggle on mobile
+      }
 
-        .profile-details {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-
-          .user-name {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: $text-primary;
-          }
-          .role-tag {
-            font-size: 0.7rem;
-            font-weight: 700;
-            margin: 2px 0 0 0;
-            padding: 0 4px;
-            border: none;
-            line-height: 1.5;
-          }
-        }
+      .environment-badge {
+        font-size: 0.65rem;
       }
     }
 
-    .viewport-content {
-      flex: 1;
-      padding: 32px;
-      overflow-y: auto !important; 
+    .user-profile-trigger {
+      .profile-details {
+        display: none; // Hide full name/role to conserve header space
+      }
     }
   }
 }

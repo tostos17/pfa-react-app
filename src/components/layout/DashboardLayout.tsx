@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Layout, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
-import { SidebarMenu } from './SidebarMenu'; // ◄ Imported role-filtered menu component
-import { TopNavbar } from './TopNavbar';    // ◄ Standardized header setup
-import './MainLayout.scss';
+import { SidebarMenu } from './SidebarMenu';
+import { TopNavbar } from './TopNavbar';
+import './DashboardLayout.scss';
 
 const { Sider, Content } = Layout;
 
@@ -21,18 +21,19 @@ export const DashboardLayout: React.FC = () => {
         collapsedWidth="0" 
         onBreakpoint={(broken) => setCollapsed(broken)} 
         width={260} 
-        className="sidebar-container" 
+        className="sidebar-container desktop-sider" 
       >
         <div className="brand-logo-zone"> 
           <h2 className="logo-text">{collapsed ? 'PFA' : 'PIONEERS FOOTBALL ACADEMY'}</h2> 
         </div>
-        {/* FIXED: Replaced hardcoded menu item blocks with security-vetted component */}
         <SidebarMenu /> 
       </Sider>
       
       <Layout>
-        {/* Standardized header rendering across layouts */}
-        <TopNavbar />
+        <TopNavbar 
+          collapsed={collapsed} 
+          onToggleCollapse={() => setCollapsed(!collapsed)} 
+        />
         
         <Content
           style={{
@@ -40,10 +41,11 @@ export const DashboardLayout: React.FC = () => {
             minHeight: 280, 
             background: colorBgContainer, 
             borderRadius: borderRadiusLG, 
+            overflowY: 'auto'
           }}
           className="viewport-content-panel" 
         >
-          <Outlet /> 
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

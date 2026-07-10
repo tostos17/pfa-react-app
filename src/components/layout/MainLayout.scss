@@ -64,3 +64,50 @@
   overflow-y: auto !important;
   overflow-x: hidden !important;
 }
+
+// Responsive controls for Header Navigation & Sidebar
+.top-navbar {
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .mobile-hamburger-btn {
+      display: none;
+    }
+
+    .desktop-toggle-btn {
+      display: flex;
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  .desktop-sider {
+    display: none !important;
+  }
+
+  .top-navbar {
+    padding: 0 16px !important;
+
+    .navbar-left {
+      .mobile-hamburger-btn {
+        display: flex !important;
+      }
+
+      .desktop-toggle-btn {
+        display: none !important;
+      }
+
+      .environment-badge {
+        font-size: 0.65rem;
+      }
+    }
+
+    .user-profile-trigger {
+      .profile-details {
+        display: none; // Hide name/role text on small screens to save header space
+      }
+    }
+  }
+}
