@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import type { AuthUser } from '../types/auth';
+import { hasAnyRole } from '../utils/authRoles';
 
 interface ProtectedRouteProps {
   allowedRoles?: string[];
@@ -22,9 +23,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) 
   }
 
   // 2. Role-Based Access Control (RBAC) Guard
-  if (allowedRoles && !user?.roles?.some(role => allowedRoles.includes(role))) {
-  return <Navigate to="/unauthorized" replace />;
-}
+  if (allowedRoles && !hasAnyRole(user.roles, allowedRoles)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
   return <Outlet />;
 };

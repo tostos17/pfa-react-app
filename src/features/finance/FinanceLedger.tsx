@@ -4,6 +4,7 @@ import { FileTextOutlined, PlusOutlined, SolutionOutlined, AuditOutlined, Filter
 import type { ColumnsType } from 'antd/es/table';
 import { apiClient } from '../../config/axios';
 import dayjs from 'dayjs';
+import './FinanceLedger.scss';
 
 const { Text, Title } = Typography;
 const { Option } = Select;
@@ -109,7 +110,7 @@ export const FinanceLedger: React.FC = () => {
     const fetchLedgerData = async () => {
         setLoading(true);
         try {
-            const res = await apiClient.get('/api/v1/finance/ledger/summary');
+            const res = await apiClient.get('/finance/ledger-summary');
             if (res.data && res.data.body) {
                 setLedger(res.data.body);
             }
@@ -127,7 +128,7 @@ export const FinanceLedger: React.FC = () => {
             if (filterStatus) params.status = filterStatus;
             if (filterCategory) params.category = filterCategory;
 
-            const res = await apiClient.get('/api/v1/finance/expenses', { params });
+            const res = await apiClient.get('/finance/expenses', { params });
             if (res.data && res.data.body) {
                 setExpenses(res.data.body);
             }
@@ -140,7 +141,7 @@ export const FinanceLedger: React.FC = () => {
 
     const fetchCalendarContexts = async () => {
         try {
-            const res = await apiClient.get('/api/v1/admin/calendar/sessions/lastfive');
+            const res = await apiClient.get('/admin/calendar/sessions/lastfive');
             if (res.data && res.data.body) {
                 setSessions(res.data.body);
             }
@@ -152,7 +153,7 @@ export const FinanceLedger: React.FC = () => {
     const handleRunFinancialAudit = async (termId: number) => {
         setLoadingAudit(true);
         try {
-            const res = await apiClient.get(`/api/v1/finance/expenses/audit/terms/${termId}`);
+            const res = await apiClient.get(`/finance/expenses/audit/terms/${termId}`);
             if (res.data && res.data.body) {
                 setAuditSummary(res.data.body);
                 message.success(`Financial audit summary calculated for ${res.data.body.termName} Term.`);
@@ -176,7 +177,7 @@ export const FinanceLedger: React.FC = () => {
                 receiptUrl: values.receiptUrl,
                 termId: values.termId
             };
-            await apiClient.post('/api/v1/finance/expenses', payload);
+            await apiClient.post('/finance/expenses', payload);
             message.success("Expense registered and logged under approval queue workflow.");
             setExpenseModalOpen(false);
             form.resetFields();
@@ -190,7 +191,7 @@ export const FinanceLedger: React.FC = () => {
 
     const handleEvaluateExpense = async (id: number, targetStatus: 'APPROVED' | 'REJECTED') => {
         try {
-            await apiClient.patch(`/api/v1/finance/expenses/${id}/status?status=${targetStatus}`);
+            await apiClient.patch(`/finance/expenses/${id}/status?status=${targetStatus}`);
             message.success(`Expense successfully marked as ${targetStatus}.`);
             fetchExpenseLedger();
             if (auditSummary && auditSummary.termId) {
@@ -206,7 +207,7 @@ export const FinanceLedger: React.FC = () => {
         setPaymentModalOpen(true);
         setFetchingInvoices(true);
         try {
-            const res = await apiClient.get(`/api/v1/finance/invoices/finance/accounts/${record.accountId}/unsettled-invoices`);
+            const res = await apiClient.get(`/finance/invoices/finance/accounts/${record.accountId}/unsettled-invoices`);
             if (res.data && res.data.body) {
                 setUnpaidInvoices(res.data.body);
                 const initialSelections: Record<string | number, boolean> = {};
@@ -261,7 +262,7 @@ export const FinanceLedger: React.FC = () => {
                 referenceNumber: paymentReference,
                 allocations: allocationsList
             };
-            await apiClient.post('/api/v1/finance/payments/allocate', payload);
+            await apiClient.post('/finance/payments/allocate', payload);
             message.success("Payment posted and applied successfully!");
             setPaymentModalOpen(false);
             setPaymentReference('');
@@ -275,7 +276,7 @@ export const FinanceLedger: React.FC = () => {
         setAllocationsModalOpen(true);
         setLoadingAllocations(true);
         try {
-            const res = await apiClient.get(`/api/v1/finance/payments/allocations/account/${record.accountId}`);
+            const res = await apiClient.get(`/finance/payments/allocations/account/${record.accountId}`);
             if (res.data && res.data.body) {
                 setAllocations(res.data.body);
             }
@@ -348,7 +349,7 @@ export const FinanceLedger: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: '24px', maxWidth: '100%', overflowX: 'hidden' }}>
+        <div className="finance-ledger-root">
             <Tabs defaultActiveKey="1" type="card">
 
                 <Tabs.TabPane tab="Student Account Balances Ledger" key="1">

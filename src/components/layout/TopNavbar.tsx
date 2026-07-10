@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Avatar, Dropdown, Tag, Button, Drawer } from 'antd';
-import type { MenuProps } from 'antd';
-import { LogoutOutlined, UserOutlined, MenuOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { LogoutButton } from '../../features/auth/LogoutButton';
 import { SidebarMenu } from './SidebarMenu';
+import { getRoleLabel } from '../../utils/authRoles';
+import './DashboardLayout.scss';
 
 interface AuthUser {
   username: string;
@@ -18,7 +16,6 @@ interface TopNavbarProps {
 }
 
 export const TopNavbar: React.FC<TopNavbarProps> = ({ collapsed, onToggleCollapse }) => {
-  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 992 : false);
 
@@ -27,55 +24,29 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ collapsed, onToggleCollaps
       setIsMobileView(window.innerWidth < 992);
     };
 
-    handleResize();
     window.addEventListener('resize', handleResize);
-
+    handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const userRaw = localStorage.getItem('pfa_user');
   const user: AuthUser | null = userRaw ? JSON.parse(userRaw) : null;
-  const displayRole = user?.roles?.[0]?.replace('ROLE_', '') || 'STAFF';
-
-  const handleLogout = () => {
-    localStorage.removeItem('pfa_token');
-    localStorage.removeItem('pfa_user');
-    navigate('/login');
-  };
-
-  const dropdownItems: MenuProps['items'] = [
-    {
-      key: 'logout',
-      label: 'Sign Out Session',
-      icon: <LogoutOutlined />,
-      danger: true,
-      onClick: handleLogout,
-    },
-  ];
+  const displayRole = getRoleLabel(user?.roles?.[0]);
 
   return (
     <header className="top-navbar">
       <div className="navbar-left">
-        {/* MOBILE ONLY: Opens Slide-Out Drawer */}
-        {isMobileView && (
-          <Button
-            type="text"
-            icon={<MenuOutlined style={{ fontSize: '20px' }} />}
-            onClick={() => setDrawerOpen(true)}
-            className="mobile-hamburger-btn"
-          />
+        {isMobileView ? (
+          <button type="button" className="mobile-hamburger-btn" onClick={() => setDrawerOpen(true)} aria-label="Open navigation menu">
+            ☰
+          </button>
+        ) : (
+          onToggleCollapse && (
+            <button type="button" className="desktop-toggle-btn" onClick={onToggleCollapse} aria-label="Toggle sidebar">
+              {collapsed ? '▶' : '◀'}
+            </button>
+          )
         )}
-
-        {/* DESKTOP ONLY: Collapses / Expands Sidebar */}
-        {!isMobileView && onToggleCollapse && (
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined style={{ fontSize: '18px' }} /> : <MenuFoldOutlined style={{ fontSize: '18px' }} />}
-            onClick={onToggleCollapse}
-            className="desktop-toggle-btn"
-          />
-        )}
-
         <span className="environment-badge">ADMINISTRATIVE CONSOLE</span>
       </div>
 
@@ -83,34 +54,25 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ collapsed, onToggleCollaps
         <div className="user-profile-trigger">
           <div className="profile-details">
             <span className="user-name">{user?.fullName || user?.username || 'Admin'}</span>
-            <Tag color="#00b074" className="role-tag">{displayRole}</Tag>
+            <span className="role-tag">{displayRole}</span>
           </div>
-          <div className="header-actions">
-            <LogoutButton />
-          </div>
-          <Dropdown menu={{ items: dropdownItems }} trigger={['click']} placement="bottomRight">
-            <Avatar
-              icon={<UserOutlined />}
-              style={{ background: '#1e2229', cursor: 'pointer' }}
-            />
-          </Dropdown>
+          <LogoutButton type="text" showText={false} />
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
-      <Drawer
-        title="Pioneers Football Academy"
-        placement="left"
-        onClose={() => setDrawerOpen(false)}
-        open={drawerOpen}
-        width={260}
-        styles={{
-          body: { padding: 0, background: '#001529' },
-          header: { background: '#001529', color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.08)' }
-        }}
-      >
-        <SidebarMenu onSelect={() => setDrawerOpen(false)} />
-      </Drawer>
+      {drawerOpen && (
+        <div className="mobile-drawer-overlay" onClick={() => setDrawerOpen(false)}>
+          <div className="mobile-drawer-panel" onClick={(event) => event.stopPropagation()}>
+            <div className="drawer-header">
+              <div>PIONEERS FOOTBALL ACADEMY</div>
+              <button type="button" className="drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Close navigation drawer">
+                ✕
+              </button>
+            </div>
+            <SidebarMenu onSelect={() => setDrawerOpen(false)} />
+          </div>
+        </div>
+      )}
     </header>
   );
 };

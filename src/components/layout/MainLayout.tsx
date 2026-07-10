@@ -1,105 +1,41 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Button, theme } from 'antd';
-// 1. Import MenuProps from 'antd'
-import type { MenuProps } from 'antd'; 
+import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  DashboardOutlined,
-  TeamOutlined,
-  UsergroupAddOutlined,
-  TrophyOutlined,
-} from '@ant-design/icons';
 import './MainLayout.scss';
 
-const { Header, Sider, Content } = Layout;
-
 export const MainLayout: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
-  // 2. Explicitly type the items array using MenuProps['items']
-  const menuItems: MenuProps['items'] = [
-    {
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: 'Overview Metrics',
-    },
-    {
-      key: 'player-management-group',
-      label: 'Player Operations',
-      type: 'group', // ◄ TypeScript now strictly recognizes this as a valid MenuItemGroupType literal
-      children: [
-        {
-          key: '/players/roster',
-          icon: <TeamOutlined />,
-          label: 'Academy Roster',
-        },
-        {
-          key: '/players/register',
-          icon: <UsergroupAddOutlined />,
-          label: 'Register Athlete',
-        },
-      ],
-    },
-    {
-      key: 'fixtures-group',
-      label: 'Matches & Training',
-      type: 'group',
-      children: [
-        {
-          key: '/fixtures',
-          icon: <TrophyOutlined />,
-          label: 'Match Fixtures',
-        },
-      ],
-    },
-  ];
+  const activePath = location.pathname;
 
   return (
-    <Layout className="main-layout-shell">
-      <Sider trigger={null} collapsible collapsed={collapsed} width={260} className="sidebar-container">
+    <div className="main-layout-shell">
+      <aside className="sidebar-container">
         <div className="brand-logo-zone">
-          <h2 className="logo-text">{collapsed ? 'PFA' : 'PRO FOOTBALL'}</h2>
+          <div className="logo-text">PFA</div>
         </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          onClick={(item) => navigate(item.key)}
-          items={menuItems}
-          className="sidebar-menu"
-        />
-      </Sider>
-      <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} className="header-navbar">
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            className="toggle-collapse-btn"
-          />
-        </Header>
-        <Content
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            minHeight: 280,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-            overflowY: 'auto',
-          }}
-        >
-          {/* 🔀 This Outlet tag injects the child component matching our route mapping */}
+        <nav className="sidebar-menu">
+          <button className={activePath === '/dashboard' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => navigate('/dashboard')}>
+            Overview Metrics
+          </button>
+          <button className={activePath === '/players/roster' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => navigate('/players/roster')}>
+            Academy Roster
+          </button>
+          <button className={activePath === '/players/register' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => navigate('/players/register')}>
+            Register Athlete
+          </button>
+          <button className={activePath === '/matches/dashboard' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => navigate('/matches/dashboard')}>
+            Match Fixtures
+          </button>
+        </nav>
+      </aside>
+      <main className="content-shell">
+        <header className="header-navbar">
+          <div className="header-title">Academy Control Panel</div>
+        </header>
+        <section className="content-area">
           <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
+        </section>
+      </main>
+    </div>
   );
 };

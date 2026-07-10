@@ -9,6 +9,7 @@ import { RegisterPlayer } from './features/players/RegisterPlayer';
 import { PlayerProfileView } from './features/players/PlayerProfileView';
 import { UpdatePlayerProfile } from './features/players/UpdatePlayerProfile';
 import { ParentsDirectory } from './features/parents/ParentsDirectory';
+import { ParentChildrenRoster } from './features/parents/ParentChildrenRoster';
 import { AcademicCalendar } from './features/calendar/AcademicCalendar';
 import { PlayerRoster } from './features/players/PlayerRoster';
 import { FinanceLedger } from './features/finance/FinanceLedger'; // ◄ 1. Import your ledger component here
@@ -77,8 +78,16 @@ const router = createBrowserRouter([
                 element: <UpdatePlayerProfile />,
               },
               {
-                path: '/parents/view',
+                path: '/dashboard/parents',
                 element: <ParentsDirectory />,
+              },
+              {
+                path: '/dashboard/parents/register',
+                element: <ParentsDirectory openCreateOnLoad />,
+              },
+              {
+                path: '/parents/my-roster/:username',
+                element: <ParentChildrenRoster />,
               },
               {
                 path: '/settings/calendar',

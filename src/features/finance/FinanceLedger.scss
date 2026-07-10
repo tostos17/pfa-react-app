@@ -1,0 +1,39 @@
+.finance-ledger-root {
+  padding: 24px;
+  max-width: 100%;
+}
+
+.finance-ledger-root .ant-card {
+  overflow: visible;
+}
+
+/* Responsive wrapper for Ant Design tables to allow horizontal scroll without overflowing viewport */
+.finance-ledger-root .ant-card .ant-table-wrapper,
+.finance-ledger-root .ant-card > .ant-table-wrapper,
+.finance-ledger-root .ant-card .ant-table {
+  width: 100%;
+}
+
+.finance-ledger-root .ant-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure table has a sensible minimum width but remains scrollable */
+.finance-ledger-root .ant-table table {
+  min-width: 860px;
+  width: 100%;
+  table-layout: auto;
+}
+
+/* Truncate long cell content to prevent layout blowout */
+.finance-ledger-root .ant-table-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Allow specific columns to wrap if needed by adding a helper class in future */
+.finance-ledger-root .ant-table-cell.wrap {
+  white-space: normal;
+}
