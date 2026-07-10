@@ -4,6 +4,7 @@ import { ForcePasswordGuard } from './components/ForcePasswordGuard';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { LoginView } from './features/auth/LoginView';
 import { ChangePasswordView } from './features/auth/ChangePasswordView';
+import { LandingPage } from './features/home/LandingPage';
 import { RegisterPlayer } from './features/players/RegisterPlayer';
 import { PlayerProfileView } from './features/players/PlayerProfileView';
 import { UpdatePlayerProfile } from './features/players/UpdatePlayerProfile';
@@ -44,6 +45,11 @@ const router = createBrowserRouter([
   {
     element: <ProtectedRoute />, // Validates active login session globally
     children: [
+      {
+        // Landing Page Route (accessible to authenticated users)
+        path: '/',
+        element: <LandingPage />,
+      },
       {
         element: <ProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_COACH', 'ROLE_DIRECTOR']} />,
         children: [
@@ -99,15 +105,9 @@ const router = createBrowserRouter([
         ],
       },
       // Fallback route inside authentication window
-      { path: '*', element: <Navigate to="/dashboard" replace /> }
+      { path: '*', element: <Navigate to="/" replace /> }
     ],
   },
-
-  // Base root landing handler
-  {
-    path: '/',
-    element: <Navigate to="/dashboard" replace />,
-  }
 ]);
 
 function App() {

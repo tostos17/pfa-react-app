@@ -3,6 +3,7 @@ import { Layout, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
 import { SidebarMenu } from './SidebarMenu';
 import { TopNavbar } from './TopNavbar';
+import { BrandLogo } from './BrandLogo';
 import './DashboardLayout.scss';
 
 const { Sider, Content } = Layout;
@@ -24,7 +25,7 @@ export const DashboardLayout: React.FC = () => {
         className="sidebar-container desktop-sider" 
       >
         <div className="brand-logo-zone"> 
-          <h2 className="logo-text">{collapsed ? 'PFA' : 'PIONEERS FOOTBALL ACADEMY'}</h2> 
+          <BrandLogo collapsed={collapsed} variant="monogram" /> 
         </div>
         <SidebarMenu /> 
       </Sider>

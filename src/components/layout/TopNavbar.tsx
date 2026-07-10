@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, Dropdown, Tag, Button, Drawer } from 'antd';
 import type { MenuProps } from 'antd';
 import { LogoutOutlined, UserOutlined, MenuOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
@@ -20,6 +20,18 @@ interface TopNavbarProps {
 export const TopNavbar: React.FC<TopNavbarProps> = ({ collapsed, onToggleCollapse }) => {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 992 : false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth < 992);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const userRaw = localStorage.getItem('pfa_user');
   const user: AuthUser | null = userRaw ? JSON.parse(userRaw) : null;
@@ -45,15 +57,17 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ collapsed, onToggleCollaps
     <header className="top-navbar">
       <div className="navbar-left">
         {/* MOBILE ONLY: Opens Slide-Out Drawer */}
-        <Button
-          type="text"
-          icon={<MenuOutlined style={{ fontSize: '20px' }} />}
-          onClick={() => setDrawerOpen(true)}
-          className="mobile-hamburger-btn"
-        />
+        {isMobileView && (
+          <Button
+            type="text"
+            icon={<MenuOutlined style={{ fontSize: '20px' }} />}
+            onClick={() => setDrawerOpen(true)}
+            className="mobile-hamburger-btn"
+          />
+        )}
 
         {/* DESKTOP ONLY: Collapses / Expands Sidebar */}
-        {onToggleCollapse && (
+        {!isMobileView && onToggleCollapse && (
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined style={{ fontSize: '18px' }} /> : <MenuFoldOutlined style={{ fontSize: '18px' }} />}

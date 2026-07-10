@@ -1,0 +1,140 @@
+.brand-logo-wordmark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  user-select: none;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
+  }
+
+  &.small {
+    padding: 8px 12px;
+    gap: 8px;
+
+    .wordmark-icon {
+      font-size: 1.2rem;
+    }
+
+    .wordmark-text {
+      .wordmark-main-short {
+        font-size: 0.8rem;
+      }
+
+      .wordmark-main {
+        font-size: 0.75rem;
+      }
+
+      .wordmark-sub {
+        font-size: 0.55rem;
+      }
+    }
+  }
+
+  &.medium {
+    padding: 12px 16px;
+    gap: 12px;
+
+    .wordmark-icon {
+      font-size: 1.8rem;
+    }
+
+    .wordmark-text {
+      .wordmark-main-short {
+        font-size: 1rem;
+      }
+
+      .wordmark-main {
+        font-size: 0.9rem;
+      }
+
+      .wordmark-sub {
+        font-size: 0.65rem;
+      }
+    }
+  }
+
+  &.large {
+    padding: 16px 20px;
+    gap: 16px;
+
+    .wordmark-icon {
+      font-size: 2.4rem;
+    }
+
+    .wordmark-text {
+      .wordmark-main-short {
+        font-size: 1.3rem;
+      }
+
+      .wordmark-main {
+        font-size: 1.2rem;
+      }
+
+      .wordmark-sub {
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  .wordmark-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: rotateIcon 3s ease-in-out infinite;
+  }
+
+  .wordmark-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+
+    .wordmark-main-short {
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: inherit;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .wordmark-main {
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: inherit;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    .wordmark-sub {
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: inherit;
+      opacity: 0.75;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+  }
+}
+
+@keyframes rotateIcon {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+}
