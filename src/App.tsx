@@ -16,6 +16,9 @@ import { FinanceLedger } from './features/finance/FinanceLedger'; // ◄ 1. Impo
 import { InvoicesPage } from './features/finance/InvoicesPage';
 import { InformationHubAdmin } from './features/admin/InformationHubAdmin';
 import { MatchManagement } from './features/match/MatchManagement';
+import { TrainingManagement } from './features/training/TrainingManagement';
+import { PlayerDashboard } from './features/portal/PlayerDashboard';
+import { ParentDashboard } from './features/portal/ParentDashboard';
 
 const UnauthorizedView = () => (
   <div style={{ padding: 50, textAlign: 'center' }}>
@@ -52,6 +55,18 @@ const router = createBrowserRouter([
         element: <LandingPage />,
       },
       {
+        element: <ProtectedRoute allowedRoles={['ROLE_PLAYER']} />,
+        children: [
+          { path: '/portal/player', element: <PlayerDashboard /> }
+        ]
+      },
+      {
+        element: <ProtectedRoute allowedRoles={['ROLE_PARENT']} />,
+        children: [
+          { path: '/portal/parent', element: <ParentDashboard /> }
+        ]
+      },
+      {
         element: <ProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_COACH', 'ROLE_DIRECTOR']} />,
         children: [
           {
@@ -86,6 +101,10 @@ const router = createBrowserRouter([
                 element: <ParentsDirectory openCreateOnLoad />,
               },
               {
+                path: '/dashboard/parents/:id',
+                element: <ParentChildrenRoster />,
+              },
+              {
                 path: '/parents/my-roster/:username',
                 element: <ParentChildrenRoster />,
               },
@@ -104,6 +123,10 @@ const router = createBrowserRouter([
               {
                 path: '/matches/dashboard', 
                 element: <MatchManagement />, 
+              },
+              {
+                path: '/trainings/dashboard',
+                element: <TrainingManagement />,
               },
               {
                 path: '/info/news', 

@@ -1,0 +1,19 @@
+.training-management-root {
+    padding: 24px;
+    background: #fbfbfb;
+    min-height: 100vh;
+
+    .page-header {
+        margin-bottom: 28px;
+    }
+
+    .ant-card {
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .ant-divider {
+        font-weight: 600;
+        color: #1f1f1f;
+    }
+}

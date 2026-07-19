@@ -17,20 +17,36 @@ export const UpdatePlayerProfile: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchCurrentData = async () => {
+    const fetchCurrentDataAndCategories = async () => {
+      setLoading(true);
+      setCategoriesLoading(true);
       try {
-        const response = await apiClient.get(`/players/${playerId}`);
+        // 1. Fetch categories dynamically from database
+        const catRes = await apiClient.get('/categories');
+        const catList = catRes.data.body || catRes.data || [];
+        const loadedCategories = Array.isArray(catList) ? catList : [];
+        setCategories(loadedCategories);
+
+        // 2. Fetch player profile details
+        const response = await apiClient.get(`/players/profile/${playerId}`);
         if (response.data?.success && response.data?.body) {
           const p = response.data.body;
           
+          // Match profile category name to database category ID
+          const matchedCategory = loadedCategories.find(
+            (c: any) => c.name.trim().toUpperCase() === p.category?.trim().toUpperCase()
+          );
+
           // Pre-populate form values with current database fields
           form.setFieldsValue({
             preferredJerseyNumber: p.preferredJerseyNumber,
             heightCm: p.heightCm,
             weightKg: p.weightKg,
-            category: p.category,
+            category: matchedCategory ? String(matchedCategory.id) : undefined,
           });
 
           // If a photo exists in S3, set it up in the upload preview frame
@@ -49,10 +65,11 @@ export const UpdatePlayerProfile: React.FC = () => {
         message.error('Failed to pull up-to-date profile settings.');
       } finally {
         setLoading(false);
+        setCategoriesLoading(false);
       }
     };
 
-    if (playerId) fetchCurrentData();
+    if (playerId) fetchCurrentDataAndCategories();
   }, [playerId, form]);
 
   const handleUploadChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
@@ -62,33 +79,38 @@ export const UpdatePlayerProfile: React.FC = () => {
   const onFinish = async (values: any) => {
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      
-      // Append core scalar update items
-      if (values.preferredJerseyNumber !== undefined && values.preferredJerseyNumber !== null) {
-        formData.append('preferredJerseyNumber', String(values.preferredJerseyNumber));
-      }
-      formData.append('heightCm', String(values.heightCm || 0));
-      formData.append('weightKg', String(values.weightKg || 0));
-      if (values.category) {
-        formData.append('category', values.category);
-      }
+      const requests = [];
 
-      // Append photo asset only if it's a freshly updated file payload
+      // 1. Core Profile Attributes Body (Idempotent Put Wrapper)
+      const profilePayload = {
+        heightCm: Number(values.heightCm || 0.0),
+        weightKg: Number(values.weightKg || 0.0),
+        preferredJerseyNumber: values.preferredJerseyNumber ? Number(values.preferredJerseyNumber) : null,
+      };
+      requests.push(apiClient.put(`/players/profile/create/${playerId}?username=admin`, profilePayload));
+
+      // 2. Separate Dynamic Passport Photo Upload if changed
       if (fileList.length > 0 && fileList[0].originFileObj) {
-        formData.append('passportPhoto', fileList[0].originFileObj);
+        const photoFormData = new FormData();
+        photoFormData.append('username', 'admin');
+        photoFormData.append('passportPhoto', fileList[0].originFileObj);
+        
+        requests.push(apiClient.put(`/players/${playerId}/passport?username=admin`, photoFormData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }));
       }
 
-      const response = await apiClient.put(`/players/${playerId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      if (response.data?.success) {
-        message.success('Player metadata and tactical profiles successfully modified.');
-        navigate(`/players/profile/${playerId}`);
-      } else {
-        message.error(response.data?.message || 'Update request failed.');
+      // 3. Category Update
+      if (values.category) {
+        requests.push(apiClient.put('/players/profile/category', {
+          playerId: playerId,
+          categoryId: Number(values.category)
+        }));
       }
+
+      await Promise.all(requests);
+      message.success('Player metadata and tactical profiles successfully modified.');
+      navigate(`/players/profile/${playerId}`);
     } catch (error) {
       const processedError = extractBackendError(error);
       message.error(processedError.message);
@@ -172,11 +194,12 @@ export const UpdatePlayerProfile: React.FC = () => {
                 </Col>
                 <Col xs={24} sm={12}>
                   <Form.Item name="category" label="Update Category / Cohort Assignment">
-                    <Select placeholder="Select Squad Group">
-                      <Option value="UNDER_13">Under-13 Academy Tier</Option>
-                      <Option value="UNDER_15">Under-15 Development Squad</Option>
-                      <Option value="UNDER_17">Under-17 Elite Matrix</Option>
-                      <Option value="UNDER_20">Under-20 Reserves Flight</Option>
+                    <Select placeholder="Select Squad Group" allowClear loading={categoriesLoading}>
+                      {categories.map((cat) => (
+                        <Option key={cat.id} value={String(cat.id)}>
+                          {cat.name} {cat.description ? `(${cat.description})` : ''}
+                        </Option>
+                      ))}
                     </Select>
                   </Form.Item>
                 </Col>

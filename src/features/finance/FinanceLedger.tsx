@@ -76,16 +76,10 @@ interface SessionResponseDto {
 export const FinanceLedger: React.FC = () => {
     const [ledger, setLedger] = useState<LedgerEntry[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [fetchingInvoices, setFetchingInvoices] = useState<boolean>(false);
-    const [paymentModalOpen, setPaymentModalOpen] = useState<boolean>(false);
-    const [selectedAccount, setSelectedAccount] = useState<LedgerEntry | null>(null);
-    const [unpaidInvoices, setUnpaidInvoices] = useState<UnpaidInvoice[]>([]);
-    const [selectedInvoices, setSelectedInvoices] = useState<Record<string | number, boolean>>({});
-    const [allocatedAmounts, setAllocatedAmounts] = useState<Record<string | number, number>>({});
-    const [paymentReference, setPaymentReference] = useState<string>('');
-    const [allocationsModalOpen, setAllocationsModalOpen] = useState<boolean>(false);
-    const [allocations, setAllocations] = useState<PaymentAllocationResponseDto[]>([]);
-    const [loadingAllocations, setLoadingAllocations] = useState<boolean>(false);
+    const [ledgerSearch, setLedgerSearch] = useState<string>('');
+    const [ledgerCategoryFilter, setLedgerCategoryFilter] = useState<string>('');
+    const [ledgerOutstandingFilter, setLedgerOutstandingFilter] = useState<string>('');
+
 
     const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
     const [loadingExpenses, setLoadingExpenses] = useState<boolean>(false);
@@ -202,90 +196,7 @@ export const FinanceLedger: React.FC = () => {
         }
     };
 
-    const openPaymentModal = async (record: LedgerEntry) => {
-        setSelectedAccount(record);
-        setPaymentModalOpen(true);
-        setFetchingInvoices(true);
-        try {
-            const res = await apiClient.get(`/finance/invoices/finance/accounts/${record.accountId}/unsettled-invoices`);
-            if (res.data && res.data.body) {
-                setUnpaidInvoices(res.data.body);
-                const initialSelections: Record<string | number, boolean> = {};
-                const initialAmounts: Record<string | number, number> = {};
-                res.data.body.forEach((inv: UnpaidInvoice) => {
-                    initialSelections[inv.invoiceId] = true;
-                    initialAmounts[inv.invoiceId] = inv.amountDue;
-                });
-                setSelectedInvoices(initialSelections);
-                setAllocatedAmounts(initialAmounts);
-            }
-        } catch (err) {
-            message.error("Failed to pull matching outstanding invoices.");
-        } finally {
-            setFetchingInvoices(false);
-        }
-    };
 
-    const handleCheckboxChange = (invoiceId: string | number, checked: boolean) => {
-        setSelectedInvoices(prev => ({ ...prev, [invoiceId]: checked }));
-    };
-
-    const handleAmountChange = (invoiceId: string | number, value: number | null) => {
-        if (value !== null) {
-            setAllocatedAmounts(prev => ({ ...prev, [invoiceId]: value }));
-        }
-    };
-
-    const handlePostAllocatedPayments = async () => {
-        if (!selectedAccount) return;
-        if (!paymentReference.trim()) {
-            message.warning("A tracking payment reference string identifier is mandatory.");
-            return;
-        }
-
-        const allocationsList = Object.keys(selectedInvoices)
-            .filter(id => selectedInvoices[id])
-            .map(id => ({
-                invoiceId: Number(id),
-                amountAllocated: allocatedAmounts[id] || 0
-            }))
-            .filter(alloc => alloc.amountAllocated > 0);
-
-        if (allocationsList.length === 0) {
-            message.warning("Select at least one active billing allocation row.");
-            return;
-        }
-
-        try {
-            const payload = {
-                accountId: selectedAccount.accountId,
-                referenceNumber: paymentReference,
-                allocations: allocationsList
-            };
-            await apiClient.post('/finance/payments/allocate', payload);
-            message.success("Payment posted and applied successfully!");
-            setPaymentModalOpen(false);
-            setPaymentReference('');
-            fetchLedgerData();
-        } catch (err) {
-            message.error("Failed to execute balance allocations.");
-        }
-    };
-
-    const viewPaymentAllocations = async (record: LedgerEntry) => {
-        setAllocationsModalOpen(true);
-        setLoadingAllocations(true);
-        try {
-            const res = await apiClient.get(`/finance/payments/allocations/account/${record.accountId}`);
-            if (res.data && res.data.body) {
-                setAllocations(res.data.body);
-            }
-        } catch (err) {
-            message.error("Unable to resolve historical allocations.");
-        } finally {
-            setLoadingAllocations(false);
-        }
-    };
 
     const ledgerColumns: ColumnsType<LedgerEntry> = [
         { title: 'Acc #', dataIndex: 'accountId', key: 'accountId', width: 80 },
@@ -295,20 +206,7 @@ export const FinanceLedger: React.FC = () => {
         { title: 'Tuition Fee', dataIndex: 'termTuition', key: 'termTuition', align: 'right', width: 120, render: (val) => `₦${val.toLocaleString()}` },
         { title: 'Other Charges', dataIndex: 'nonFeeCharges', key: 'nonFeeCharges', align: 'right', width: 120, render: (val) => `₦${val.toLocaleString()}` },
         { title: 'Total Paid', dataIndex: 'totalPaid', key: 'totalPaid', align: 'right', width: 120, render: (val) => <Text style={{ color: '#00b074' }}>₦{val.toLocaleString()}</Text> },
-        { title: 'Outstanding Balance', dataIndex: 'outstanding', key: 'outstanding', align: 'right', width: 140, render: (val) => <Tag color={val > 0 ? 'red' : 'green'}>₦{val.toLocaleString()}</Tag> },
-        {
-            title: 'Control Terminal Operations',
-            key: 'actions',
-            align: 'center',
-            width: 220,
-            fixed: 'right' as const,
-            render: (_, record) => (
-                <Space>
-                    <Button type="primary" size="small" onClick={() => openPaymentModal(record)}>Post Payment</Button>
-                    <Button size="small" icon={<FileTextOutlined />} onClick={() => viewPaymentAllocations(record)}>History</Button>
-                </Space>
-            )
-        }
+        { title: 'Outstanding Balance', dataIndex: 'outstanding', key: 'outstanding', align: 'right', width: 140, render: (val) => <Tag color={val > 0 ? 'red' : 'green'}>₦{val.toLocaleString()}</Tag> }
     ];
 
     const expenseColumns: ColumnsType<ExpenseResponse> = [
@@ -348,15 +246,107 @@ export const FinanceLedger: React.FC = () => {
         }
     ];
 
+    const uniqueLedgerCategories = React.useMemo(() => {
+        const cats = ledger.map((entry) => entry.category).filter(Boolean);
+        return Array.from(new Set(cats));
+    }, [ledger]);
+
+    const filteredLedger = React.useMemo(() => {
+        return ledger.filter((entry) => {
+            if (ledgerSearch) {
+                const query = ledgerSearch.toLowerCase();
+                const nameMatch = entry.playerName?.toLowerCase().includes(query);
+                const accMatch = String(entry.accountId).includes(query);
+                if (!nameMatch && !accMatch) return false;
+            }
+            if (ledgerCategoryFilter) {
+                if (entry.category !== ledgerCategoryFilter) return false;
+            }
+            if (ledgerOutstandingFilter === 'outstanding') {
+                if (entry.outstanding <= 0) return false;
+            } else if (ledgerOutstandingFilter === 'cleared') {
+                if (entry.outstanding > 0) return false;
+            }
+            return true;
+        });
+    }, [ledger, ledgerSearch, ledgerCategoryFilter, ledgerOutstandingFilter]);
+
+    const ledgerSummaryStats = filteredLedger.reduce(
+        (summary, entry) => {
+            summary.totalAccounts += 1;
+            summary.totalInflow += entry.totalPaid || 0;
+            summary.totalOutstanding += entry.outstanding || 0;
+            return summary;
+        },
+        { totalAccounts: 0, totalInflow: 0, totalOutstanding: 0 }
+    );
+
     return (
         <div className="finance-ledger-root">
             <Tabs defaultActiveKey="1" type="card">
 
                 <Tabs.TabPane tab="Student Account Balances Ledger" key="1">
                     <Card title={<Title level={4} style={{ margin: 0 }}>Central Student Accounts Ledger Summary</Title>} bordered={false} style={{ marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                        <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+                            <Col xs={24} sm={8}>
+                                <Card bordered={false} style={{ background: '#f6faff' }}>
+                                    <Statistic title="Total Accounts" value={ledgerSummaryStats.totalAccounts} valueStyle={{ color: '#1677ff' }} />
+                                </Card>
+                            </Col>
+                            <Col xs={24} sm={8}>
+                                <Card bordered={false} style={{ background: '#f6ffed' }}>
+                                    <Statistic title="Total Inflow" value={ledgerSummaryStats.totalInflow} precision={2} prefix="₦" valueStyle={{ color: '#52c41a' }} />
+                                </Card>
+                            </Col>
+                            <Col xs={24} sm={8}>
+                                <Card bordered={false} style={{ background: '#fff1f0' }}>
+                                    <Statistic title="Total Outstanding Payments" value={ledgerSummaryStats.totalOutstanding} precision={2} prefix="₦" valueStyle={{ color: '#cf1322' }} />
+                                </Card>
+                            </Col>
+                        </Row>
+
+                        <Card style={{ marginBottom: '16px', background: '#fafafa' }} bodyStyle={{ padding: '12px 16px' }}>
+                            <Row gutter={[12, 12]} align="middle">
+                                <Col xs={24} md={10}>
+                                    <Input
+                                        placeholder="Search by player name or account #..."
+                                        value={ledgerSearch}
+                                        onChange={(e) => setLedgerSearch(e.target.value)}
+                                        allowClear
+                                        style={{ width: '100%' }}
+                                    />
+                                </Col>
+                                <Col xs={12} md={7}>
+                                    <Select
+                                        placeholder="Filter by Category"
+                                        value={ledgerCategoryFilter}
+                                        onChange={setLedgerCategoryFilter}
+                                        style={{ width: '100%' }}
+                                        allowClear
+                                    >
+                                        {uniqueLedgerCategories.map(cat => (
+                                            <Option key={cat} value={cat}>{cat}</Option>
+                                        ))}
+                                    </Select>
+                                </Col>
+                                <Col xs={12} md={7}>
+                                    <Select
+                                        placeholder="Filter Outstanding Status"
+                                        value={ledgerOutstandingFilter}
+                                        onChange={setLedgerOutstandingFilter}
+                                        style={{ width: '100%' }}
+                                        allowClear
+                                    >
+                                        <Option value="outstanding">Has Outstanding Balance</Option>
+                                        <Option value="cleared">Cleared (No Balance)</Option>
+                                    </Select>
+                                </Col>
+                            </Row>
+                        </Card>
+
                         <Table
                             columns={ledgerColumns}
-                            dataSource={ledger}
+                            dataSource={filteredLedger}
                             rowKey="accountId"
                             loading={loading}
                             pagination={{ pageSize: 10 }}
@@ -490,37 +480,6 @@ export const FinanceLedger: React.FC = () => {
                         </Space>
                     </Form.Item>
                 </Form>
-            </Modal>
-
-            <Modal title={`Post Payments Allocation Statement — ${selectedAccount?.playerName || ''}`} open={paymentModalOpen} onCancel={() => setPaymentModalOpen(false)} footer={null} width={700} destroyOnClose>
-                {fetchingInvoices ? (
-                    <div style={{ textAlign: 'center', padding: '30px' }}><Spin size="large" /></div>
-                ) : (
-                    <div>
-                        <div style={{ marginBottom: '16px' }}>
-                            <Text strong style={{ display: 'block', marginBottom: '6px' }}>Bank Transaction Reference Number / Code:</Text>
-                            <Input placeholder="Enter reference ID (e.g. TXN-98231)" value={paymentReference} onChange={(e) => setPaymentReference(e.target.value)} prefix={<SolutionOutlined />} />
-                        </div>
-                        <Table dataSource={unpaidInvoices} rowKey="invoiceId" pagination={false} size="small" scroll={{ x: 'max-content' }} columns={[
-                            { title: 'Select', dataIndex: 'invoiceId', width: 60, render: (id) => <Checkbox checked={!!selectedInvoices[id]} onChange={(e) => handleCheckboxChange(id, e.target.checked)} /> },
-                            { title: 'Invoice Details', dataIndex: 'description', render: (text, row) => <Space direction="vertical" size={0}><Text strong>{row.status}</Text><Text type="secondary" style={{ fontSize: '12px' }}>{text}</Text></Space> },
-                            { title: 'Balance Due', dataIndex: 'amountDue', align: 'right', render: (val) => `₦${val.toLocaleString()}` },
-                            { title: 'Payment Allocated Amount', dataIndex: 'invoiceId', align: 'right', render: (id) => <InputNumber min={0} disabled={!selectedInvoices[id]} value={allocatedAmounts[id]} onChange={(val) => handleAmountChange(id, val)} formatter={value => `₦ ${value}`.replace(/\B(?=(\d{3})+(?!\\d))/g, ',')} parser={(value) => (value ? value.replace(/₦\s?|(,*)/g, '') : '') as any} style={{ width: 140 }} /> }
-                        ]} />
-                        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
-                            <Space><Button onClick={() => setPaymentModalOpen(false)}>Cancel</Button><Button type="primary" onClick={handlePostAllocatedPayments}>Post Balance Application</Button></Space>
-                        </div>
-                    </div>
-                )}
-            </Modal>
-
-            <Modal title="Payment Allocation History Ledgers" open={allocationsModalOpen} onCancel={() => setAllocationsModalOpen(false)} footer={[<Button key="close" onClick={() => setAllocationsModalOpen(false)}>Close Ledger</Button>]} width={750}>
-                <Table dataSource={allocations} rowKey="id" loading={loadingAllocations} size="small" pagination={{ pageSize: 8 }} scroll={{ x: 'max-content' }} columns={[
-                    { title: 'Allocation Key ID', dataIndex: 'id', render: (record) => <Space direction="vertical" size={0}><Text strong>Alloc #{record.id}</Text><Text type="secondary" style={{ fontSize: '11px' }}>Payment Reference: #{record.paymentId}</Text></Space> },
-                    { title: 'Category', dataIndex: 'invoiceCategory', render: (category) => category ? <Tag color="blue">{category}</Tag> : '—' },
-                    { title: 'Description', dataIndex: 'invoiceDescription', render: (desc) => <Text style={{ fontSize: '13px' }}>{desc || '—'}</Text> },
-                    { title: 'Amount Allocated', dataIndex: 'amountAllocated', align: 'right', render: (val) => <Text style={{ color: '#00b074', fontWeight: 600 }}>₦{val.toLocaleString()}</Text> }
-                ]} />
             </Modal>
         </div>
     );

@@ -24,6 +24,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="players/register" element={<RegisterPlayer />} />
           <Route path="dashboard/parents" element={<ParentsDirectory />} />
           <Route path="dashboard/parents/register" element={<ParentsDirectory openCreateOnLoad />} />
+          <Route path="dashboard/parents/:id" element={<ParentChildrenRoster />} />
           <Route path="parents/my-roster/:username" element={<ParentChildrenRoster />} />
           <Route path="/finance/ledger" element={<FinanceLedger />} />
           <Route path="/finance/invoices" element={<InvoicesPage />} />

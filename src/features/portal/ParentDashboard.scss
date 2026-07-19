@@ -1,0 +1,65 @@
+.parent-portal-dashboard-wrapper {
+  padding: 24px;
+  background: #f0f2f5;
+  min-height: 100vh;
+
+  .parent-portal-header-banner {
+    background: linear-gradient(135deg, #001529 0%, #002140 100%);
+    padding: 32px;
+    border-radius: 12px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 21, 41, 0.08);
+
+    .balance-badge-widget {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 24px;
+      border-radius: 8px;
+      display: inline-block;
+      text-align: right;
+    }
+  }
+
+  .portal-switcher-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    border: 1px solid #f0f0f0;
+    background: #fff;
+  }
+
+  .portal-premium-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    border: 1px solid #f0f0f0;
+
+    .ant-card-head {
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafafa;
+      font-weight: 600;
+    }
+  }
+
+  .parent-portal-tabs {
+    .ant-tabs-nav {
+      background: #fff;
+      padding: 0 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+  }
+
+  .portal-logout-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #a0a0a0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    padding: 6px 16px !important;
+    border-radius: 999px;
+    font-size: 13px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+      color: #ff4d4f !important;
+    }
+  }
+}

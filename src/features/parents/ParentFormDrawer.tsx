@@ -36,7 +36,7 @@ export const ParentFormDrawer: React.FC<DrawerProps> = ({ visible, onClose, pare
     try {
       if (isEditMode && parentData) {
         // UPDATE Existing Parent
-        const response = await apiClient.put(`/parents/${parentData.id}`, values);
+        const response = await apiClient.put(`/auth/parents/${parentData.id}`, values);
         if (response.status === 200 && response.data?.success) {
           message.success('Guardian properties updated successfully.');
           onSuccess();

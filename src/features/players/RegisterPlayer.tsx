@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, InputNumber, Button, DatePicker, Row, Col, Card, Divider, Upload, Spin, message } from 'antd';
-import { UserOutlined, TrophyOutlined, LinkOutlined, SaveOutlined, EnvironmentOutlined, HeartOutlined, UploadOutlined, PlusOutlined } from '@ant-design/icons';
+import { UserOutlined, TrophyOutlined, LinkOutlined, SaveOutlined, EnvironmentOutlined, HeartOutlined, UploadOutlined, PlusOutlined, DollarOutlined } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd';
 import { apiClient } from '../../config/axios';
 import { extractBackendError } from '../../config/errorExtractor';
@@ -13,7 +13,7 @@ interface ParentOption {
   id: number;
   firstName: string;
   lastName: string;
-  phoneNumber: string;
+  phone: string;
 }
 
 export const RegisterPlayer: React.FC = () => {
@@ -24,6 +24,7 @@ export const RegisterPlayer: React.FC = () => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const isHealthy = Form.useWatch('healthy', form);
+  const discountedValue = Form.useWatch('discounted', form);
 
   useEffect(() => {
     const fetchParents = async () => {
@@ -31,8 +32,7 @@ export const RegisterPlayer: React.FC = () => {
       try {
         const response = await apiClient.get('/parents?all=true');
         const apiResponse = response.data;
-        const dataPayload = apiResponse.body;
-        const parentList = dataPayload?.content || dataPayload || [];
+        const parentList = apiResponse.body?.content || apiResponse.content || apiResponse.body || apiResponse || [];
         setParents(Array.isArray(parentList) ? parentList : []);
       } catch (error) {
         message.error('Failed to load parent directories.');
@@ -78,6 +78,8 @@ export const RegisterPlayer: React.FC = () => {
       if (values.dominantFoot) formData.append('dominantFoot', values.dominantFoot);
       formData.append('heightCm', String(values.heightCm || 0.0));
       formData.append('weightKg', String(values.weightKg || 0.0));
+      formData.append('discounted', String(values.discounted === 'TRUE'));
+      formData.append('percentDiscount', String(values.percentDiscount || 0.0));
 
       if (fileList.length > 0 && fileList[0].originFileObj) {
         formData.append('passportPhoto', fileList[0].originFileObj);
@@ -148,7 +150,7 @@ export const RegisterPlayer: React.FC = () => {
         onFinish={onFinish}
         requiredMark={false}
         size="large"
-        initialValues={{ healthy: 'TRUE', country: 'Nigeria' }}
+        initialValues={{ healthy: 'TRUE', country: 'Nigeria', discounted: 'FALSE' }}
         className="premium-form-layout"
       >
         <Row gutter={[24, 24]}>
@@ -273,6 +275,33 @@ export const RegisterPlayer: React.FC = () => {
                 </Col>
               </Row>
             </Card>
+
+            <Card title={<><DollarOutlined className="card-icon" /> Fee & Discount Settings</>} className="form-card" style={{ marginTop: '24px' }}>
+              <Row gutter={16}>
+                <Col xs={24} sm={12}>
+                  <Form.Item name="discounted" label="Is Player Discounted?" rules={[{ required: true }]}>
+                    <Select>
+                      <Option value="TRUE">Yes, Apply Percentage Discount</Option>
+                      <Option value="FALSE">No, Full Standard Tuition Fees</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12}>
+                  {discountedValue === 'TRUE' && (
+                    <Form.Item 
+                      name="percentDiscount" 
+                      label="Percent Discount (%)" 
+                      rules={[
+                        { required: true, message: 'Please enter the discount percentage.' },
+                        { type: 'number', min: 0, max: 100, message: 'Percentage must be between 0 and 100.' }
+                      ]}
+                    >
+                      <InputNumber style={{ width: '100%' }} min={0} max={100} placeholder="e.g. 15" suffix="%" />
+                    </Form.Item>
+                  )}
+                </Col>
+              </Row>
+            </Card>
           </Col>
 
           {/* RIGHT FIXED PANEL FOR UPLOAD AND ACTION ELEMENTS */}
@@ -315,7 +344,7 @@ export const RegisterPlayer: React.FC = () => {
                 >
                   {parents.map((parent) => (
                     <Option key={parent.id} value={parent.id}>
-                      {parent.lastName}, {parent.firstName} ({parent.phoneNumber})
+                      {parent.lastName}, {parent.firstName} ({parent.phone})
                     </Option>
                   ))}
                 </Select>

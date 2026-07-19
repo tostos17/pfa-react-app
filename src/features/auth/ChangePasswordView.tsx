@@ -41,7 +41,7 @@ export const ChangePasswordView: React.FC = () => {
       }
 
       notify.success('Password updated successfully! Welcome to the academy.');
-      navigate('/dashboard');
+      navigate('/');
     } catch (error: any) {
       if (error.response?.data?.message) {
         setErrorMessage(error.response.data.message);

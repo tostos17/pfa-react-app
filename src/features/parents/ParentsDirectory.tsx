@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Table, Input, Button, Card, Row, Col, Space, Typography, message } from 'antd';
-import { SearchOutlined, ReloadOutlined, PlusOutlined, EditOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
+import { SearchOutlined, ReloadOutlined, PlusOutlined, EditOutlined, EyeOutlined, PhoneOutlined } from '@ant-design/icons';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { apiClient } from '../../config/axios';
 import { ParentFormDrawer } from './ParentFormDrawer';
+import { hasAnyRole } from '../../utils/authRoles';
 import './ParentsDirectory.scss';
 
 const { Text } = Typography;
@@ -35,6 +36,17 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isAdmin = React.useMemo(() => {
+    const userRaw = localStorage.getItem('pfa_user');
+    if (!userRaw) return false;
+    try {
+      const user = JSON.parse(userRaw);
+      return hasAnyRole(user.roles, ['ROLE_ADMIN', 'ADMIN']);
+    } catch {
+      return false;
+    }
+  }, []);
+
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
     pageSize: 10,
@@ -55,8 +67,8 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
 
       const apiResponse = response.data;
       // Adapting both nested pagination responses or direct array responses safely
-      const payload = apiResponse.body?.content || apiResponse.body || [];
-      const totalElements = apiResponse.body?.totalElements || payload.length || 0;
+      const payload = apiResponse.body?.content || apiResponse.content || apiResponse.body || apiResponse || [];
+      const totalElements = apiResponse.body?.totalElements || apiResponse.totalElements || payload.length || 0;
 
       setParents(Array.isArray(payload) ? payload : []);
       setPagination({
@@ -97,11 +109,9 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
     setDrawerOpen(true);
   };
 
-  const handleOpenChildrenRoster = (parent: ParentData) => {
-    const targetUsername = parent.username || `${parent.firstName}.${parent.lastName}`.toLowerCase();
-
-    navigate(`/parents/my-roster/${encodeURIComponent(targetUsername)}`, {
-      state: { parentName: `${parent.lastName}, ${parent.firstName}`, username: targetUsername },
+  const handleOpenParentDetails = (parent: ParentData) => {
+    navigate(`/dashboard/parents/${parent.id}`, {
+      state: { parentName: `${parent.lastName}, ${parent.firstName}` },
     });
   };
 
@@ -114,8 +124,8 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
     },
     {
       title: 'Phone Number',
-      dataIndex: 'phoneNumber',
-      key: 'phoneNumber',
+      dataIndex: 'phone',
+      key: 'phone',
       render: (phone: string) => (
         <Space>
           <PhoneOutlined style={{ color: '#52c41a' }} />
@@ -144,17 +154,19 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
       render: (_, record) => (
         <Space size="small">
           <Button
-            size="small"
-            icon={<TeamOutlined style={{ color: '#722ed1' }} />}
-            onClick={() => handleOpenChildrenRoster(record)}
-          >
-            Children
-          </Button>
-          <Button 
-            type="text" 
-            icon={<EditOutlined style={{ color: '#1890ff' }} />} 
-            onClick={() => handleOpenEdit(record)}
+            type="text"
+            icon={<EyeOutlined style={{ color: '#722ed1' }} />}
+            onClick={() => handleOpenParentDetails(record)}
+            title="View parent details"
           />
+          {isAdmin && (
+            <Button 
+              type="text" 
+              icon={<EditOutlined style={{ color: '#1890ff' }} />} 
+              onClick={() => handleOpenEdit(record)}
+              title="Edit parent"
+            />
+          )}
         </Space>
       ),
     },

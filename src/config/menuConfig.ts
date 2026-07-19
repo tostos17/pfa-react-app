@@ -16,16 +16,7 @@ export const menuConfiguration: MenuItem[] = [
     children: [
       { key: '/players/register', label: 'Register Player', path: '/players/register', roles: ['ROLE_ADMIN'] },
       { key: '/players/view', label: 'View Players', path: '/players/view', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR', 'ROLE_COACH'] },
-      { key: '/players/assessments', label: 'Record Assessment Scores', path: '/players/assessments', roles: ['ROLE_COACH', 'ROLE_ADMIN'] },
-      {
-        key: 'disciplinary',
-        label: 'Disciplinary Measures',
-        roles: ['ROLE_ADMIN'],
-        children: [
-          { key: '/players/disciplinary/suspend', label: 'Suspend Player', path: '/players/disciplinary/suspend', roles: ['ROLE_ADMIN'] },
-          { key: '/players/disciplinary/unsuspend', label: 'Un-suspend Player', path: '/players/disciplinary/unsuspend', roles: ['ROLE_ADMIN'] }
-        ]
-      }
+      { key: '/players/assessments', label: 'Record Assessment Scores', path: '/players/assessments', roles: ['ROLE_COACH', 'ROLE_ADMIN'] }
     ]
   },
   {
@@ -46,16 +37,20 @@ export const menuConfiguration: MenuItem[] = [
     ]
   },
   {
+    key: 'training-management',
+    label: 'Training Center',
+    roles: ['ROLE_ADMIN', 'ROLE_COACH', 'ROLE_DIRECTOR'],
+    children: [
+      { key: '/trainings/dashboard', label: 'Manage Sessions', path: '/trainings/dashboard', roles: ['ROLE_ADMIN', 'ROLE_COACH', 'ROLE_DIRECTOR'] }
+    ]
+  },
+  {
     key: 'finance-management',
     label: 'Finance Management',
     roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'],
     children: [
       { key: '/finance/ledger', label: 'Accounts Ledger', path: '/finance/ledger', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'] },
-      { key: '/finances/payments', label: 'Record Payments', path: '/finances/payments', roles: ['ROLE_ADMIN',  'ROLE_DIRECTOR',] },
-      { key: '/finances/expenses', label: 'Record Expenses', path: '/finances/expenses', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'] },
-      { key: '/finances/transactions', label: 'View All Transactions', path: '/finances/transactions', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'] },
-      { key: 'finance-invoices', label: 'Invoices', path: '/finance/invoices', roles: ['ROLE_ADMIN',  'ROLE_DIRECTOR'],
-    }
+      { key: 'finance-invoices', label: 'Invoices', path: '/finance/invoices', roles: ['ROLE_ADMIN', 'ROLE_DIRECTOR'] }
     ]
   },
   {

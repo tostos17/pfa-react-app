@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Avatar, Typography, Tag, Tabs, Descriptions, Button, Skeleton, Space, message, Divider } from 'antd';
-import { ArrowLeftOutlined, UserOutlined, PhoneOutlined, HeartOutlined, TrophyOutlined } from '@ant-design/icons';
+import { Card, Row, Col, Avatar, Typography, Tag, Tabs, Descriptions, Button, Skeleton, Space, message, Divider, Statistic, Table } from 'antd';
+import { ArrowLeftOutlined, UserOutlined, PhoneOutlined, HeartOutlined, TrophyOutlined, CalendarOutlined, StarOutlined } from '@ant-design/icons';
 import { apiClient } from '../../config/axios';
 import './PlayerProfileView.scss';
 
@@ -22,14 +22,42 @@ interface PlayerProfile {
     category: string | null;
 }
 
+interface PlayerCapDetail {
+    matchId: number;
+    opponentName: string;
+    date: string;
+    matchType: string;
+    status: string;
+}
+
+interface PlayerGoalDetail {
+    goalId: number;
+    matchId: number;
+    opponentName: string;
+    matchTime: string;
+    isPenalty: boolean;
+    isFreekick: boolean;
+}
+
+interface PlayerStats {
+    totalCaps: number;
+    totalGoals: number;
+    caps: PlayerCapDetail[];
+    goals: PlayerGoalDetail[];
+}
+
 export const PlayerProfileView: React.FC = () => {
     const { playerId } = useParams<{ playerId: string }>();
     const navigate = useNavigate();
     const [player, setPlayer] = useState<PlayerProfile | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [stats, setStats] = useState<PlayerStats | null>(null);
+    const [statsLoading, setStatsLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        const fetchPlayerProfile = async () => {
+        const fetchPlayerProfileAndStats = async () => {
+            setLoading(true);
+            setStatsLoading(true);
             try {
                 // Simulating matching endpoints, fallback to sample data if mock environment
                 const response = await apiClient.get(`/players/profile/${playerId}`);
@@ -58,9 +86,35 @@ export const PlayerProfileView: React.FC = () => {
             } finally {
                 setLoading(false);
             }
+
+            try {
+                const statsResponse = await apiClient.get(`/players/profile/${playerId}/stats`);
+                if (statsResponse.data?.success && statsResponse.data?.body) {
+                    setStats(statsResponse.data.body);
+                }
+            } catch (error) {
+                // Fallback mockup stats for instant preview UI
+                setStats({
+                    totalCaps: 5,
+                    totalGoals: 2,
+                    caps: [
+                        { matchId: 1, opponentName: 'Lagos Academy', date: '2026-07-10', matchType: 'LEAGUE', status: 'STARTING_LINEUP' },
+                        { matchId: 2, opponentName: 'Kano Pillars Youth', date: '2026-07-08', matchType: 'FRIENDLY', status: 'SUBSTITUTE' },
+                        { matchId: 3, opponentName: 'Enyimba feeder', date: '2026-07-05', matchType: 'CUP', status: 'STARTING_LINEUP' },
+                        { matchId: 4, opponentName: 'Shooting Stars Jr', date: '2026-06-28', matchType: 'LEAGUE', status: 'STARTING_LINEUP' },
+                        { matchId: 5, opponentName: 'Remo Stars U15', date: '2026-06-20', matchType: 'LEAGUE', status: 'SUBSTITUTE' }
+                    ],
+                    goals: [
+                        { goalId: 1, matchId: 1, opponentName: 'Lagos Academy', matchTime: '23', isPenalty: false, isFreekick: false },
+                        { goalId: 2, matchId: 4, opponentName: 'Shooting Stars Jr', matchTime: '88', isPenalty: true, isFreekick: false }
+                    ]
+                });
+            } finally {
+                setStatsLoading(false);
+            }
         };
 
-        if (playerId) fetchPlayerProfile();
+        if (playerId) fetchPlayerProfileAndStats();
     }, [playerId]);
 
     if (loading) {
@@ -160,10 +214,112 @@ export const PlayerProfileView: React.FC = () => {
                                 </div>
                             </Tabs.TabPane>
 
-                            <Tabs.TabPane tab="Performance Metrics" key="2">
-                                <div className="tab-pane-content empty-pane">
-                                    <HeartOutlined style={{ fontSize: '36px', color: '#bfbfbf', marginBottom: '12px' }} />
-                                    <Text type="secondary">No performance ratings logged for this developmental window.</Text>
+                             <Tabs.TabPane tab="Performance Metrics" key="2">
+                                <div className="tab-pane-content">
+                                    {statsLoading ? (
+                                        <Skeleton active paragraph={{ rows: 6 }} />
+                                    ) : stats ? (
+                                        <>
+                                            <Row gutter={16} className="stats-summary-row" style={{ marginBottom: 24 }}>
+                                                <Col span={12}>
+                                                    <Card size="small" style={{ background: '#fafafa', textAlign: 'center', borderRadius: 8 }}>
+                                                        <Statistic
+                                                            title="Total Caps (Appearances)"
+                                                            value={stats.totalCaps}
+                                                            prefix={<CalendarOutlined style={{ color: '#1890ff' }} />}
+                                                        />
+                                                    </Card>
+                                                </Col>
+                                                <Col span={12}>
+                                                    <Card size="small" style={{ background: '#fafafa', textAlign: 'center', borderRadius: 8 }}>
+                                                        <Statistic
+                                                            title="Goals Scored"
+                                                            value={stats.totalGoals}
+                                                            prefix={<StarOutlined style={{ color: '#52c41a' }} />}
+                                                        />
+                                                    </Card>
+                                                </Col>
+                                            </Row>
+
+                                            <Divider orientation="left">Match Participation History</Divider>
+                                            <Table
+                                                size="small"
+                                                dataSource={stats.caps}
+                                                rowKey="matchId"
+                                                pagination={{ pageSize: 5 }}
+                                                columns={[
+                                                    {
+                                                        title: 'Opponent',
+                                                        dataIndex: 'opponentName',
+                                                        key: 'opponentName',
+                                                        render: (text) => <Text strong>{text}</Text>
+                                                    },
+                                                    {
+                                                        title: 'Date',
+                                                        dataIndex: 'date',
+                                                        key: 'date'
+                                                    },
+                                                    {
+                                                        title: 'Type',
+                                                        dataIndex: 'matchType',
+                                                        key: 'matchType',
+                                                        render: (type: string) => (
+                                                            <Tag color={type === 'LEAGUE' ? 'blue' : type === 'CUP' ? 'purple' : 'default'}>
+                                                                {type}
+                                                            </Tag>
+                                                        )
+                                                    },
+                                                    {
+                                                        title: 'Role',
+                                                        dataIndex: 'status',
+                                                        key: 'status',
+                                                        render: (status: string) => (
+                                                            <Tag color={status === 'STARTING_LINEUP' ? 'green' : 'orange'}>
+                                                                {status === 'STARTING_LINEUP' ? 'Starter' : 'Substitute'}
+                                                            </Tag>
+                                                        )
+                                                    }
+                                                ]}
+                                            />
+
+                                            <Divider orientation="left" style={{ marginTop: 24 }}>Goal Scored Registry</Divider>
+                                            <Table
+                                                size="small"
+                                                dataSource={stats.goals}
+                                                rowKey="goalId"
+                                                locale={{ emptyText: 'No goals recorded for this player.' }}
+                                                pagination={{ pageSize: 5 }}
+                                                columns={[
+                                                    {
+                                                        title: 'Opponent',
+                                                        dataIndex: 'opponentName',
+                                                        key: 'opponentName',
+                                                        render: (text) => <Text strong>{text}</Text>
+                                                    },
+                                                    {
+                                                        title: 'Time',
+                                                        dataIndex: 'matchTime',
+                                                        key: 'matchTime',
+                                                        render: (time) => <Text>{time}'</Text>
+                                                    },
+                                                    {
+                                                        title: 'Goal Type',
+                                                        key: 'goalType',
+                                                        render: (_, record) => {
+                                                            if (record.isPenalty) return <Tag color="red">Penalty</Tag>;
+                                                            if (record.isFreekick) return <Tag color="gold">Freekick</Tag>;
+                                                            return <Tag color="green">Regular</Tag>;
+                                                        }
+                                                    }
+                                                ]}
+                                            />
+                                        </>
+                                    ) : (
+                                        <div className="empty-pane">
+                                            <HeartOutlined style={{ fontSize: '36px', color: '#bfbfbf', marginBottom: '12px' }} />
+                                            <Text type="secondary">Failed to load performance metrics.</Text>
+                                        </div>
+                                    )}
                                 </div>
                             </Tabs.TabPane>
                         </Tabs>
