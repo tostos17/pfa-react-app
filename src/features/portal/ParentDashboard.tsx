@@ -100,7 +100,7 @@ export const ParentDashboard: React.FC = () => {
             dataIndex: 'amount',
             key: 'amount',
             align: 'right' as const,
-            render: (amt: number) => <Text style={{ fontWeight: 'bold' }}>${Number(amt).toLocaleString()}</Text>
+            render: (amt: number) => <Text style={{ fontWeight: 'bold' }}>₦{Number(amt).toLocaleString()}</Text>
         },
         {
             title: 'Status',
@@ -142,7 +142,27 @@ export const ParentDashboard: React.FC = () => {
             dataIndex: 'amount',
             key: 'amount',
             align: 'right' as const,
-            render: (amt: number) => <Text type="success" style={{ fontWeight: 'bold' }}>+${Number(amt).toLocaleString()}</Text>
+            render: (amt: number) => <Text type="success" style={{ fontWeight: 'bold' }}>+₦{Number(amt).toLocaleString()}</Text>
+        },
+        {
+            title: 'Receipt',
+            key: 'receipt',
+            align: 'center' as const,
+            render: (_: any, record: any) => {
+                if (!record.receiptUrl) return '—';
+                return (
+                    <a
+                        onClick={() => {
+                            const token = localStorage.getItem('pfa_token');
+                            const url = `${apiClient.defaults.baseURL || 'http://localhost:8080/api/v1'}${record.receiptUrl}?token=${token}`;
+                            window.open(url, '_blank');
+                        }}
+                        style={{ color: '#1890ff', cursor: 'pointer', fontWeight: 500 }}
+                    >
+                        View & Print
+                    </a>
+                );
+            }
         }
     ];
 
@@ -172,7 +192,7 @@ export const ParentDashboard: React.FC = () => {
                                         title={<span style={{ color: '#a0a0a0' }}>Outstanding Invoices Balance</span>} 
                                         value={outstandingBalance} 
                                         precision={2} 
-                                        prefix="$" 
+                                        prefix="₦" 
                                         valueStyle={{ color: outstandingBalance > 0 ? '#ff4d4f' : '#52c41a', fontWeight: 'bold' }} 
                                     />
                                 </div>
