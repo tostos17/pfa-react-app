@@ -1,3 +1,5 @@
+import { Modal } from 'antd';
+
 export const notify = {
   success: (message: string) => {
     console.log(`SUCCESS: ${message}`);
@@ -10,6 +12,10 @@ export const notify = {
   },
   error: (message: string) => {
     console.error(`ERROR: ${message}`);
-    window.alert(message);
+    Modal.error({
+      title: 'Error Encountered',
+      content: message,
+      centered: true,
+    });
   },
 };

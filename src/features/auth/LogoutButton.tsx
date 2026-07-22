@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { notify } from '../../config/notifications';
+import { Modal } from 'antd';
 import './LogoutButton.scss';
 
 interface LogoutButtonProps {
@@ -25,8 +26,16 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({
   };
 
   const handleLogoutClick = () => {
-    const confirmed = window.confirm('Are you sure you want to log out of the portal?');
-    if (confirmed) performLogout();
+    Modal.confirm({
+      title: 'Logout Confirmation',
+      content: 'Are you sure you want to log out of the portal?',
+      okText: 'Logout',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk() {
+        performLogout();
+      },
+    });
   };
 
   return (

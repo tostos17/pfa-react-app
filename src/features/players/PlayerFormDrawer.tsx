@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Drawer, Form, Input, Select, InputNumber, DatePicker, Row, Col, Space, Upload, Spin, message, Button } from 'antd';
-import { SaveOutlined, PlusOutlined } from '@ant-design/icons';
+import { SaveOutlined, PlusOutlined, DollarOutlined } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd';
 import dayjs from 'dayjs';
 import { apiClient } from '../../config/axios';
@@ -31,6 +31,7 @@ export const PlayerFormDrawer: React.FC<PlayerFormDrawerProps> = ({ visible, onC
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const isHealthy = Form.useWatch('healthy', form);
+  const discountedValue = Form.useWatch('discounted', form);
   const isEditMode = !!playerData;
 
   useEffect(() => {
@@ -129,6 +130,8 @@ export const PlayerFormDrawer: React.FC<PlayerFormDrawerProps> = ({ visible, onC
         if (values.dominantFoot) formData.append('dominantFoot', values.dominantFoot);
         formData.append('heightCm', String(values.heightCm || 0.0));
         formData.append('weightKg', String(values.weightKg || 0.0));
+        formData.append('discounted', String(values.discounted === 'TRUE'));
+        formData.append('percentDiscount', String(values.percentDiscount || 0.0));
 
         if (fileList.length > 0 && fileList[0].originFileObj) {
           formData.append('passportPhoto', fileList[0].originFileObj);
@@ -189,7 +192,7 @@ export const PlayerFormDrawer: React.FC<PlayerFormDrawerProps> = ({ visible, onC
           onFinish={onFinish}
           requiredMark={false}
           size="large"
-          initialValues={{ healthy: 'TRUE', country: 'Nigeria' }}
+          initialValues={{ healthy: 'TRUE', country: 'Nigeria', discounted: 'FALSE' }}
         >
           <Row gutter={16}>
             <Col span={24}>
@@ -217,18 +220,20 @@ export const PlayerFormDrawer: React.FC<PlayerFormDrawerProps> = ({ visible, onC
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item name="username" label="System Username" rules={[{ required: true, message: 'Username is required.' }]}>
-                <Input placeholder="e.g. akin2026" disabled={isEditMode} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} style={{ display: isEditMode ? 'none' : 'block' }}>
-              <Form.Item name="password" label="Portal Password (Optional)">
-                <Input.Password placeholder="Leave blank for autogen" />
-              </Form.Item>
-            </Col>
-          </Row>
+          {!isEditMode && (
+            <Row gutter={16}>
+              <Col xs={24} sm={12}>
+                <Form.Item name="username" label="System Username" rules={[{ required: true, message: 'Username is required.' }]}>
+                  <Input placeholder="e.g. akin2026" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item name="password" label="Portal Password (Optional)">
+                  <Input.Password placeholder="Leave blank for autogen" />
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
 
           {/* Hide core registration blocks in edit mode to prioritize atomic biometric endpoints */}
           <div style={{ display: isEditMode ? 'none' : 'block' }}>
@@ -347,6 +352,31 @@ export const PlayerFormDrawer: React.FC<PlayerFormDrawerProps> = ({ visible, onC
           </Form.Item>
 
           <div style={{ display: isEditMode ? 'none' : 'block' }}>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="discounted" label="Is Player Discounted?" rules={[{ required: !isEditMode }]}>
+                  <Select>
+                    <Option value="TRUE">Yes, Apply Percentage Discount</Option>
+                    <Option value="FALSE">No, Full Tuition Fees</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                {discountedValue === 'TRUE' && (
+                  <Form.Item 
+                    name="percentDiscount" 
+                    label="Percent Discount (%)" 
+                    rules={[
+                      { required: true, message: 'Discount percentage is required.' },
+                      { type: 'number', min: 0, max: 100, message: 'Must be between 0 and 100.' }
+                    ]}
+                  >
+                    <InputNumber style={{ width: '100%' }} min={0} max={100} placeholder="e.g. 15" suffix="%" />
+                  </Form.Item>
+                )}
+              </Col>
+            </Row>
+
             <Form.Item name="healthy" label="Is Player Fit & Healthy?" rules={[{ required: !isEditMode }]}>
               <Select>
                 <Option value="TRUE">Fit & Validated for Activity</Option>

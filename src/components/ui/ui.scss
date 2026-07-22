@@ -16,6 +16,11 @@
   min-height: 44px;
 }
 
+.ui-button.block {
+  width: 100%;
+  display: flex;
+}
+
 .ui-button.primary {
   background-color: $accent-green;
   border-color: $accent-green;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Table, Card, Tag, Select, Button, Space, Typography, message, Modal, Form, Input, InputNumber } from 'antd';
-import { FileTextOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, FileTextOutlined, HistoryOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { apiClient } from '../../config/axios';
 
@@ -9,6 +9,7 @@ const { Option } = Select;
 
 interface InvoiceResponse {
   invoiceId: number;
+  accountId?: number;
   playerId: string;
   playerName: string;
   termDisplayName: string;
@@ -68,6 +69,98 @@ export const InvoicesPage: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [form] = Form.useForm();
+
+  // Payment modal controls
+  const [isPaymentModalVisible, setIsPaymentModalVisible] = useState<boolean>(false);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+  const [unpaidInvoices, setUnpaidInvoices] = useState<InvoiceResponse[]>([]);
+  const [loadingUnpaidInvoices, setLoadingUnpaidInvoices] = useState<boolean>(false);
+  const [postingPayment, setPostingPayment] = useState<boolean>(false);
+  const [paymentForm] = Form.useForm();
+
+  // Payment History modal controls
+  const [isHistoryModalVisible, setIsHistoryModalVisible] = useState<boolean>(false);
+  const [selectedInvoiceForHistory, setSelectedInvoiceForHistory] = useState<InvoiceResponse | null>(null);
+  const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState<boolean>(false);
+
+  const openHistoryModal = async (record: InvoiceResponse) => {
+    setSelectedInvoiceForHistory(record);
+    setIsHistoryModalVisible(true);
+    setLoadingHistory(true);
+    try {
+      const response = await apiClient.get(`/finance/invoices/${record.invoiceId}/part-payments`);
+      if (response.data && response.data.success && Array.isArray(response.data.body)) {
+        setPaymentHistory(response.data.body);
+      } else {
+        setPaymentHistory([]);
+      }
+    } catch {
+      message.error("Failed to load invoice payment history.");
+      setPaymentHistory([]);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const handleAccountChange = async (accId: number | null) => {
+    setSelectedAccountId(accId);
+    setUnpaidInvoices([]);
+    paymentForm.setFieldsValue({ invoiceIds: [], amountPaid: null });
+    
+    if (!accId) return;
+    
+    setLoadingUnpaidInvoices(true);
+    try {
+      const response = await apiClient.get(`/finance/invoices/finance/accounts/${accId}/unsettled-invoices`);
+      if (response.data && response.data.success && Array.isArray(response.data.body)) {
+        setUnpaidInvoices(response.data.body);
+      } else {
+        setUnpaidInvoices([]);
+      }
+    } catch {
+      message.error("Failed to fetch open invoices for this account.");
+      setUnpaidInvoices([]);
+    } finally {
+      setLoadingUnpaidInvoices(false);
+    }
+  };
+
+  const handleInvoicesChange = (selectedIds: number[]) => {
+    const sum = unpaidInvoices
+      .filter(inv => selectedIds.includes(inv.invoiceId))
+      .reduce((acc, inv) => acc + inv.amountDue, 0);
+    
+    paymentForm.setFieldsValue({
+      amountPaid: sum > 0 ? sum : null
+    });
+  };
+
+  const handlePostPayment = async (values: any) => {
+    if (!selectedAccountId) return;
+    setPostingPayment(true);
+    try {
+      const payload = {
+        accountId: String(selectedAccountId),
+        amountPaid: values.amountPaid,
+        invoiceIds: values.invoiceIds
+      };
+
+      const response = await apiClient.post('/finance/payments', payload);
+      if (response.data && response.data.success) {
+        message.success(response.data.message || 'Payment applied successfully.');
+        setIsPaymentModalVisible(false);
+        paymentForm.resetFields();
+        fetchInvoices(statusFilter, sessionFilter, termFilter);
+      } else {
+        throw new Error(response.data?.message || 'Failed to post payment.');
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.message || error.message || 'Failed to post payment.');
+    } finally {
+      setPostingPayment(false);
+    }
+  };
 
   // 1. Fetch sessions from the newly discovered calendar API
   const fetchCalendarData = async () => {
@@ -225,6 +318,20 @@ export const InvoicesPage: React.FC = () => {
         return <Tag color={color} style={{ fontWeight: 600 }}>{status}</Tag>;
       },
     },
+    {
+      title: 'Actions',
+      key: 'actions',
+      align: 'center',
+      render: (_, record) => (
+        <Button 
+          type="link" 
+          icon={<HistoryOutlined />} 
+          onClick={() => openHistoryModal(record)}
+        >
+          History
+        </Button>
+      )
+    }
   ];
 
   return (
@@ -238,14 +345,28 @@ export const InvoicesPage: React.FC = () => {
           </div>
         </Space>
         
-        <Button 
-          type="primary" 
-          icon={<PlusOutlined />} 
-          size="large"
-          onClick={() => setIsModalVisible(true)}
-        >
-          Create New Invoice
-        </Button>
+        <Space>
+          <Button 
+            type="default" 
+            size="large"
+            onClick={() => {
+              setSelectedAccountId(null);
+              setUnpaidInvoices([]);
+              paymentForm.resetFields();
+              setIsPaymentModalVisible(true);
+            }}
+          >
+            Post Payment
+          </Button>
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />} 
+            size="large"
+            onClick={() => setIsModalVisible(true)}
+          >
+            Create New Invoice
+          </Button>
+        </Space>
       </div>
 
       <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.01)' }}>
@@ -377,6 +498,147 @@ export const InvoicesPage: React.FC = () => {
             </Space>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Post Payment Modal */}
+      <Modal
+        title="Post Payment Allocation Statement"
+        open={isPaymentModalVisible}
+        onCancel={() => { if(!postingPayment) { setIsPaymentModalVisible(false); paymentForm.resetFields(); } }}
+        footer={null}
+        destroyOnClose
+      >
+        <Form form={paymentForm} layout="vertical" onFinish={handlePostPayment} style={{ marginTop: '16px' }}>
+          <Form.Item 
+            name="accountId" 
+            label="Select Athlete Target Account"
+            rules={[{ required: true, message: 'Please select a target account' }]}
+          >
+            <Select 
+              showSearch 
+              loading={loadingAccounts} 
+              placeholder="Search and select player account" 
+              allowClear
+              onChange={handleAccountChange}
+              optionLabelProp="label"
+              filterOption={(input, option) => {
+                if (!option) return false;
+                const labelText = String(option.label || '').toLowerCase();
+                const searchInput = input.toLowerCase();
+                return labelText.includes(searchInput);
+              }}
+            >
+              {ledgerAccounts.map(item => (
+                <Option key={item.accountId} value={item.accountId} label={item.playerName}>
+                  {item.playerName} ({item.category})
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item 
+            name="invoiceIds" 
+            label="Select Target Invoice(s)" 
+            rules={[{ required: true, message: 'Please select at least one invoice' }]}
+          >
+            <Select
+              mode="multiple"
+              placeholder={selectedAccountId ? "Choose one or more unsettled invoices" : "Please select an account first"}
+              loading={loadingUnpaidInvoices}
+              disabled={!selectedAccountId}
+              onChange={handleInvoicesChange}
+              optionLabelProp="label"
+            >
+              {unpaidInvoices.map(inv => (
+                <Option 
+                  key={inv.invoiceId} 
+                  value={inv.invoiceId}
+                  label={`[${inv.category}] #${inv.invoiceId} - ₦${inv.amountDue.toLocaleString()}`}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                    <Text strong>[{inv.category}] #{inv.invoiceId}</Text>
+                    <Text type="danger" strong>₦{inv.amountDue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
+                    {inv.termDisplayName} • {inv.description || 'No description'}
+                  </div>
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item 
+            name="amountPaid" 
+            label="Remittance Amount Paid (₦)" 
+            rules={[
+              { required: true, message: 'Please input the amount paid' }, 
+              { type: 'number', min: 0.01, message: 'Amount paid must be greater than zero' }
+            ]}
+          >
+            <InputNumber 
+              style={{ width: '100%' }} 
+              min={0.01} 
+              placeholder="0.00" 
+              formatter={value => `₦ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={(value) => (value ? value.replace(/₦\s?|(,*)/g, '') : '') as any}
+            />
+          </Form.Item>
+
+          <Form.Item style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 0, marginTop: '24px' }}>
+            <Space>
+              <Button disabled={postingPayment} onClick={() => setIsPaymentModalVisible(false)}>Cancel</Button>
+              <Button type="primary" htmlType="submit" loading={postingPayment}>Post Payment</Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+      {/* Payment History Modal */}
+      <Modal
+        title={`Payment History — Invoice #${selectedInvoiceForHistory?.invoiceId}`}
+        open={isHistoryModalVisible}
+        onCancel={() => { setIsHistoryModalVisible(false); setPaymentHistory([]); }}
+        footer={[
+          <Button key="close" onClick={() => setIsHistoryModalVisible(false)}>
+            Close
+          </Button>
+        ]}
+        width={650}
+        destroyOnClose
+      >
+        <Table
+          dataSource={paymentHistory}
+          rowKey="allocationId"
+          loading={loadingHistory}
+          size="small"
+          pagination={false}
+          columns={[
+            {
+              title: 'Payment ID',
+              dataIndex: 'paymentId',
+              key: 'paymentId',
+              render: (id) => <Text strong>PAY-{id}</Text>
+            },
+            {
+              title: 'Amount Paid',
+              dataIndex: 'amountPaid',
+              key: 'amountPaid',
+              align: 'right',
+              render: (val) => <Text style={{ color: '#52c41a', fontWeight: 600 }}>₦{val.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+            },
+            {
+              title: 'Payment Date',
+              dataIndex: 'paymentDate',
+              key: 'paymentDate',
+              render: (date) => date ? new Date(date).toLocaleString('en-GB', { hour12: false }).replace(',', '') : '—'
+            },
+            {
+              title: 'Reference Number',
+              dataIndex: 'referenceNumber',
+              key: 'referenceNumber',
+              render: (ref) => <Tag color="blue">{ref}</Tag>
+            }
+          ]}
+        />
       </Modal>
     </div>
   );

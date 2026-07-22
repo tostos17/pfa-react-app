@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import './LandingPage.scss';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const userRaw = localStorage.getItem('pfa_user');
+    if (userRaw) {
+      try {
+        const user = JSON.parse(userRaw);
+        if (Array.isArray(user.roles)) {
+          if (user.roles.includes('ROLE_PLAYER')) {
+            navigate('/portal/player', { replace: true });
+          } else if (user.roles.includes('ROLE_PARENT')) {
+            navigate('/portal/parent', { replace: true });
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [navigate]);
 
   const features = [
     {

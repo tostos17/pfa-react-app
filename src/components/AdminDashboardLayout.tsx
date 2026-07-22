@@ -9,7 +9,7 @@ export const AdminDashboardLayout: React.FC<{ children: React.ReactNode }> = ({ 
   return (
     <div className="admin-dashboard-shell">
       <aside className={`admin-sidebar${collapsed ? ' collapsed' : ''}`}>
-        <div className="admin-brand">{collapsed ? 'PFA' : 'PRO FOOTBALL'}</div>
+        <div className="admin-brand">{collapsed ? 'PFA' : 'PIONEERS FOOTBALL ACADEMY'}</div>
         <nav className="admin-nav">
           <button onClick={() => navigate('/dashboard')}>Players Roster</button>
           <button onClick={() => navigate('/matches/dashboard')}>Match Fixtures</button>

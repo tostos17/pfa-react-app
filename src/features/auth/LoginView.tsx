@@ -19,12 +19,12 @@ export const LoginView: React.FC = () => {
     setErrorMessage(null);
 
     try {
-      const response = await apiClient.post<LoginResponse>('/auth/login', {
+      const response = await apiClient.post<{ body: LoginResponse }>('/auth/login', {
         username,
         password,
       });
 
-      const { token, ...user } = response.data;
+      const { token, ...user } = response.data.body;
       const normalizedUser = {
         ...user,
         roles: normalizeRoles(user.roles),
@@ -56,7 +56,7 @@ export const LoginView: React.FC = () => {
   return (
     <div className="login-container">
       <div className="brand-panel">
-        <div className="logo-text">PRO FOOTBALL ACADEMY</div>
+        <div className="logo-text">PIONEERS FOOTBALL ACADEMY</div>
         <div className="brand-manifesto">
           <h1>
             Develop the Athlete.<br />
@@ -108,7 +108,7 @@ export const LoginView: React.FC = () => {
               />
             </div>
 
-            <button type="submit" className="ui-button primary block" disabled={loading}>
+            <button type="submit" className="ui-button block submit-btn" disabled={loading}>
               {loading ? 'Authenticating…' : 'Authenticate Session'}
             </button>
           </form>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Input, Avatar, Tag, Card, Row, Col, Space, Typography, Button, message, Tooltip } from 'antd';
-import { SearchOutlined, ReloadOutlined, UserOutlined, EyeOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons';
+import { Table, Input, Avatar, Tag, Card, Row, Col, Space, Typography, Button, message, Tooltip, Modal, Radio } from 'antd';
+import { SearchOutlined, ReloadOutlined, UserOutlined, EyeOutlined, PlusOutlined, EditOutlined, SolutionOutlined } from '@ant-design/icons';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { apiClient } from '../../config/axios';
 import { PlayerFormDrawer } from './PlayerFormDrawer';
@@ -11,6 +11,7 @@ const { Text, Title } = Typography;
 
 // Exactly matches the backend PlayerProfileResponse payload mapping structure
 interface PlayerProfileResponse {
+  id: number;
   playerId: string;
   playerName: string;
   category: string | null;
@@ -23,6 +24,7 @@ interface PlayerProfileResponse {
   preferredJerseyNumber: number | null;
   biography: string | null;
   photo: string | null;
+  status: 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED';
 }
 
 export const PlayerRoster: React.FC = () => {
@@ -33,6 +35,39 @@ export const PlayerRoster: React.FC = () => {
   // Drawer states for management
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerProfileResponse | null>(null);
+
+  // Status modal states
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState<boolean>(false);
+  const [statusRecord, setStatusRecord] = useState<PlayerProfileResponse | null>(null);
+  const [newStatus, setNewStatus] = useState<'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED'>('ACTIVE');
+  const [submittingStatus, setSubmittingStatus] = useState<boolean>(false);
+
+  const openStatusModal = (record: PlayerProfileResponse) => {
+    setStatusRecord(record);
+    setNewStatus(record.status || 'ACTIVE');
+    setIsStatusModalOpen(true);
+  };
+
+  const handleUpdateStatus = async () => {
+    if (!statusRecord) return;
+    setSubmittingStatus(true);
+    try {
+      const playerDbId = (statusRecord as any).id;
+      if (!playerDbId) {
+        throw new Error("Missing player database ID.");
+      }
+
+      await apiClient.put(`/players/${playerDbId}/status`, { status: newStatus });
+      message.success(`Status for ${statusRecord.playerName} updated to ${newStatus}.`);
+      setIsStatusModalOpen(false);
+      fetchProfiles(pagination.current || 1);
+    } catch (err: any) {
+      console.error(err);
+      message.error(err.response?.data?.message || 'Failed to update player status.');
+    } finally {
+      setSubmittingStatus(false);
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -158,6 +193,18 @@ export const PlayerRoster: React.FC = () => {
       render: (cat: string) => cat ? <Tag color="purple">{cat}</Tag> : <Text type="secondary">—</Text>,
     },
     {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: 120,
+      render: (status: 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED') => {
+        let color = 'green';
+        if (status === 'SUSPENDED') color = 'orange';
+        if (status === 'DEACTIVATED') color = 'volcano';
+        return <Tag color={color}>{status || 'ACTIVE'}</Tag>;
+      }
+    },
+    {
       title: 'Biometrics',
       key: 'biometrics',
       width: 130,
@@ -171,7 +218,7 @@ export const PlayerRoster: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 110,
+      width: 160,
       align: 'center',
       fixed: 'right',
       render: (_, record) => (
@@ -188,6 +235,13 @@ export const PlayerRoster: React.FC = () => {
               type="text"
               icon={<EditOutlined />}
               onClick={() => openEditDrawer(record)}
+            />
+          </Tooltip>
+          <Tooltip title="Manage Status">
+            <Button
+              type="text"
+              icon={<SolutionOutlined />}
+              onClick={() => openStatusModal(record)}
             />
           </Tooltip>
         </Space>
@@ -259,6 +313,35 @@ export const PlayerRoster: React.FC = () => {
         playerData={selectedPlayer}
         onSuccess={() => fetchProfiles(pagination.current || 1)}
       />
+
+      <Modal
+        title={`Manage Roster Status: ${statusRecord?.playerName}`}
+        open={isStatusModalOpen}
+        onOk={handleUpdateStatus}
+        onCancel={() => setIsStatusModalOpen(false)}
+        confirmLoading={submittingStatus}
+        okText="Update Status"
+        destroyOnClose
+      >
+        <div style={{ margin: '16px 0' }}>
+          <p>Update the registration status for this athlete profile. Restricting a profile will block login access and exclude them from match starting lineups and training attendance rosters.</p>
+          <Radio.Group 
+            value={newStatus} 
+            onChange={(e) => setNewStatus(e.target.value)}
+            style={{ width: '100%', marginTop: '16px', display: 'flex', justifyContent: 'space-around' }}
+          >
+            <Radio.Button value="ACTIVE" style={{ borderColor: '#52c41a', color: newStatus === 'ACTIVE' ? '#fff' : '#52c41a', background: newStatus === 'ACTIVE' ? '#52c41a' : undefined }}>
+              Active
+            </Radio.Button>
+            <Radio.Button value="SUSPENDED" style={{ borderColor: '#fa8c16', color: newStatus === 'SUSPENDED' ? '#fff' : '#fa8c16', background: newStatus === 'SUSPENDED' ? '#fa8c16' : undefined }}>
+              Suspended
+            </Radio.Button>
+            <Radio.Button value="DEACTIVATED" style={{ borderColor: '#ff4d4f', color: newStatus === 'DEACTIVATED' ? '#fff' : '#ff4d4f', background: newStatus === 'DEACTIVATED' ? '#ff4d4f' : undefined }}>
+              Deactivated
+            </Radio.Button>
+          </Radio.Group>
+        </div>
+      </Modal>
     </div>
   );
 };
