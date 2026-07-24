@@ -52,7 +52,11 @@ jobs:
             cd ~/pfa-app || mkdir -p ~/pfa-app && cd ~/pfa-app
 
             # Authenticate with GHCR using a Personal Access Token (PAT)
-            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            if [ -n "${{ secrets.GHCR_PAT }}" ]; then
+              echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            else
+              echo "Warning: GHCR_PAT is not set. Skipping docker login..."
+            fi
 
             # Pull the latest frontend image
             docker compose -f docker-compose.prod.yml pull frontend
