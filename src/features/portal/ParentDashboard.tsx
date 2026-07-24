@@ -257,6 +257,13 @@ export const ParentDashboard: React.FC = () => {
 
                                         <Col span={12}><Text type="secondary">Date of Birth:</Text></Col>
                                         <Col span={12}><Text>{childDetails.child?.dateOfBirth}</Text></Col>
+                                        
+                                        <Col span={12}><Text type="secondary">Missed Sessions:</Text></Col>
+                                        <Col span={12}>
+                                            <Tag color={childDetails.missedTrainingsCount > 0 ? 'red' : 'green'} style={{ fontWeight: 'bold' }}>
+                                                {childDetails.missedTrainingsCount || 0}
+                                            </Tag>
+                                        </Col>
                                     </Row>
                                 </Card>
                             </Col>
