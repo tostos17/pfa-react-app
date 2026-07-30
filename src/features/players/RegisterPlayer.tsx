@@ -339,15 +339,15 @@ export const RegisterPlayer: React.FC = () => {
                   placeholder="Select linked parent profile"
                   loading={loadingParents}
                   showSearch
-                  optionFilterProp="children"
                   allowClear
-                >
-                  {parents.map((parent) => (
-                    <Option key={parent.id} value={parent.id}>
-                      {parent.lastName}, {parent.firstName} ({parent.phone})
-                    </Option>
-                  ))}
-                </Select>
+                  options={parents.map((parent) => ({
+                    value: parent.id,
+                    label: `${parent.lastName}, ${parent.firstName} (${parent.phone})`
+                  }))}
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                />
               </Form.Item>
               
               <Divider style={{ margin: '20px 0' }} />

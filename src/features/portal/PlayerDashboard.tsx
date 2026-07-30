@@ -99,6 +99,11 @@ export const PlayerDashboard: React.FC = () => {
                             <Descriptions.Item label="Phone Roster">
                                 {player.phone || '—'}
                             </Descriptions.Item>
+                            <Descriptions.Item label="Missed Trainings">
+                                <Tag color={data.missedTrainingsCount > 0 ? 'red' : 'green'} style={{ fontWeight: 'bold' }}>
+                                    {data.missedTrainingsCount || 0}
+                                </Tag>
+                            </Descriptions.Item>
                         </Descriptions>
 
                         <div style={{ marginTop: '20px' }}>
