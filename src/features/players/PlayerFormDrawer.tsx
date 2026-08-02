@@ -13,7 +13,7 @@ interface ParentOption {
   id: number;
   firstName: string;
   lastName: string;
-  phoneNumber: string;
+  phone: string;
 }
 
 interface PlayerFormDrawerProps {
