@@ -13,7 +13,7 @@ interface ParentOption {
   id: number;
   firstName: string;
   lastName: string;
-  phoneNumber: string;
+  phone: string;
 }
 
 interface PlayerFormDrawerProps {
@@ -41,8 +41,7 @@ export const PlayerFormDrawer: React.FC<PlayerFormDrawerProps> = ({ visible, onC
         try {
           const response = await apiClient.get('/parents?all=true');
           const apiResponse = response.data;
-          const dataPayload = apiResponse.body;
-          const parentList = dataPayload?.content || dataPayload || [];
+          const parentList = apiResponse.content || apiResponse.body?.content || apiResponse.body || apiResponse || [];
           setParents(Array.isArray(parentList) ? parentList : []);
         } catch (error) {
           message.error('Failed to load parent directories.');
@@ -276,13 +275,18 @@ export const PlayerFormDrawer: React.FC<PlayerFormDrawerProps> = ({ visible, onC
               </Col>
               <Col xs={24} sm={12}>
                 <Form.Item name="parentId" label="Primary Account Guardian" rules={[{ required: !isEditMode, message: 'Guardian linkage required.' }]}>
-                  <Select placeholder="Select guardian" showSearch optionFilterProp="children" allowClear>
-                    {parents.map((parent) => (
-                      <Option key={parent.id} value={parent.id}>
-                        {parent.lastName}, {parent.firstName}
-                      </Option>
-                    ))}
-                  </Select>
+                  <Select
+                    placeholder="Select guardian"
+                    showSearch
+                    allowClear
+                    options={parents.map((parent) => ({
+                      value: parent.id,
+                      label: `${parent.lastName}, ${parent.firstName} (${parent.phone || ''})`
+                    }))}
+                    filterOption={(input, option) =>
+                      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                    }
+                  />
                 </Form.Item>
               </Col>
             </Row>
