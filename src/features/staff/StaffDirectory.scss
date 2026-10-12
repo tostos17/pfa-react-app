@@ -1,0 +1,154 @@
+.staff-directory-root {
+    padding: 24px;
+    background: #fbfbfb;
+    min-height: 100vh;
+
+    .page-header {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .page-title-group {
+            h2 {
+                margin: 0;
+                font-weight: 700;
+                color: #111827;
+                letter-spacing: -0.5px;
+            }
+            .page-subtitle {
+                color: #6b7280;
+                font-size: 13.5px;
+            }
+        }
+    }
+
+    /* Live Stat Cards Grid */
+    .stat-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+
+        @media (max-width: 1200px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            }
+
+            .stat-info {
+                .stat-label {
+                    font-size: 11.5px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.6px;
+                    color: #6b7280;
+                    font-weight: 600;
+                }
+                .stat-value {
+                    font-size: 24px;
+                    font-weight: 700;
+                    line-height: 1.2;
+                    margin-top: 3px;
+                }
+            }
+
+            .stat-icon {
+                font-size: 24px;
+                opacity: 0.85;
+            }
+
+            &.stat-total {
+                border-left: 4px solid #6366f1;
+                .stat-value { color: #4338ca; }
+                .stat-icon { color: #6366f1; }
+            }
+            &.stat-coaches {
+                border-left: 4px solid #2563eb;
+                .stat-value { color: #1d4ed8; }
+                .stat-icon { color: #2563eb; }
+            }
+            &.stat-directors {
+                border-left: 4px solid #d97706;
+                .stat-value { color: #b45309; }
+                .stat-icon { color: #d97706; }
+            }
+            &.stat-admins {
+                border-left: 4px solid #7c3aed;
+                .stat-value { color: #6d28d9; }
+                .stat-icon { color: #7c3aed; }
+            }
+            &.stat-active {
+                border-left: 4px solid #10b981;
+                .stat-value { color: #047857; }
+                .stat-icon { color: #10b981; }
+            }
+        }
+    }
+
+    .main-content-card {
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+        .toolbar-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 16px;
+
+            .search-input {
+                max-width: 320px;
+            }
+        }
+
+        .ant-table-wrapper {
+            .ant-table-thead > tr > th {
+                background: #fafafa;
+                font-weight: 600;
+                color: #374151;
+                font-size: 13px;
+            }
+
+            .staff-name-cell {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+
+                .staff-info {
+                    display: flex;
+                    flex-direction: column;
+
+                    .staff-fullname {
+                        font-weight: 600;
+                        color: #111827;
+                        font-size: 13.5px;
+                    }
+
+                    .staff-username {
+                        font-size: 11.5px;
+                        color: #6b7280;
+                    }
+                }
+            }
+        }
+    }
+}

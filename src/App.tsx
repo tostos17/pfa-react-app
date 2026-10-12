@@ -19,6 +19,7 @@ import { MatchManagement } from './features/match/MatchManagement';
 import { TrainingManagement } from './features/training/TrainingManagement';
 import { PlayerDashboard } from './features/portal/PlayerDashboard';
 import { ParentDashboard } from './features/portal/ParentDashboard';
+import { StaffDirectory } from './features/staff/StaffDirectory';
 
 const UnauthorizedView = () => (
   <div style={{ padding: 50, textAlign: 'center' }}>
@@ -131,6 +132,14 @@ const router = createBrowserRouter([
               {
                 path: '/info/news', 
                 element: <InformationHubAdmin />,
+              },
+              {
+                path: '/staff/view',
+                element: <StaffDirectory />,
+              },
+              {
+                path: '/staff/register',
+                element: <StaffDirectory openCreateOnLoad />,
               },
             ],
           },

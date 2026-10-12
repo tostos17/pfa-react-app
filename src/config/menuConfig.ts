@@ -62,6 +62,15 @@ export const menuConfiguration: MenuItem[] = [
     ]
   },
   {
+    key: 'staff-management',
+    label: 'Staff Management',
+    roles: ['ROLE_ADMIN'],
+    children: [
+      { key: '/staff/register', label: 'Register Staff', path: '/staff/register', roles: ['ROLE_ADMIN'] },
+      { key: '/staff/view', label: 'Staff Directory', path: '/staff/view', roles: ['ROLE_ADMIN'] }
+    ]
+  },
+  {
     key: 'system-settings',
     label: 'System Configurations',
     roles: ['ROLE_ADMIN'],
@@ -69,5 +78,4 @@ export const menuConfiguration: MenuItem[] = [
       { key: '/settings/calendar', label: 'Academic Calendar', path: '/settings/calendar', roles: ['ROLE_ADMIN'] }
     ]
   }
-    
 ];
