@@ -153,6 +153,19 @@ export const ParentFormDrawer: React.FC<DrawerProps> = ({ visible, onClose, pare
           >
             <Input.TextArea rows={3} placeholder="Provide home address context details..." />
           </Form.Item>
+
+          <Form.Item name="relationship" label="Relationship to Player (Optional)">
+            <Select placeholder="Select relationship" allowClear>
+              <Select.Option value="Father">Father</Select.Option>
+              <Select.Option value="Mother">Mother</Select.Option>
+              <Select.Option value="Guardian">Guardian</Select.Option>
+              <Select.Option value="Other">Other</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="occupation" label="Occupation (Optional)">
+            <Input placeholder="e.g. Engineer, Teacher..." />
+          </Form.Item>
         </Form>
       </Spin>
     </Drawer>

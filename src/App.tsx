@@ -20,6 +20,7 @@ import { TrainingManagement } from './features/training/TrainingManagement';
 import { PlayerDashboard } from './features/portal/PlayerDashboard';
 import { ParentDashboard } from './features/portal/ParentDashboard';
 import { StaffDirectory } from './features/staff/StaffDirectory';
+import { ParentOnboardingPage } from './features/onboarding/ParentOnboardingPage';
 
 const UnauthorizedView = () => (
   <div style={{ padding: 50, textAlign: 'center' }}>
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginView />,
+  },
+  {
+    path: '/onboarding/parent',
+    element: <ParentOnboardingPage />,
   },
   {
     path: '/unauthorized',

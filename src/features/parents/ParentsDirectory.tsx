@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Table, Input, Button, Card, Row, Col, Space, Typography, message } from 'antd';
-import { SearchOutlined, ReloadOutlined, PlusOutlined, EditOutlined, EyeOutlined, PhoneOutlined } from '@ant-design/icons';
+import { SearchOutlined, ReloadOutlined, PlusOutlined, EditOutlined, EyeOutlined, PhoneOutlined, KeyOutlined, PrinterOutlined } from '@ant-design/icons';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { apiClient } from '../../config/axios';
 import { ParentFormDrawer } from './ParentFormDrawer';
+import { GenerateAccessKeyModal } from '../onboarding/GenerateAccessKeyModal';
+import { ConsentFormModal } from '../onboarding/ConsentFormModal';
 import { hasAnyRole } from '../../utils/authRoles';
 import './ParentsDirectory.scss';
 
@@ -32,6 +34,9 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
   // Drawer visibility controls
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [selectedParent, setSelectedParent] = useState<ParentData | null>(null);
+  const [keyModalOpen, setKeyModalOpen] = useState<boolean>(false);
+  const [consentModalOpen, setConsentModalOpen] = useState<boolean>(false);
+  const [consentParentId, setConsentParentId] = useState<number | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,6 +47,17 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
     try {
       const user = JSON.parse(userRaw);
       return hasAnyRole(user.roles, ['ROLE_ADMIN', 'ADMIN']);
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const isDirector = React.useMemo(() => {
+    const userRaw = localStorage.getItem('pfa_user');
+    if (!userRaw) return false;
+    try {
+      const user = JSON.parse(userRaw);
+      return hasAnyRole(user.roles, ['ROLE_DIRECTOR', 'DIRECTOR']);
     } catch {
       return false;
     }
@@ -167,6 +183,14 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
               title="Edit parent"
             />
           )}
+          {isDirector && (
+            <Button
+              type="text"
+              icon={<PrinterOutlined style={{ color: '#52c41a' }} />}
+              onClick={() => { setConsentParentId(record.id); setConsentModalOpen(true); }}
+              title="View & print consent form"
+            />
+          )}
         </Space>
       ),
     },
@@ -179,9 +203,18 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
           <h1 style={{ fontSize: 'calc(1.2rem + 1vw)', margin: '0 0 4px 0' }}>Parent & Guardian Directory</h1>
           <p style={{ color: '#8c8c8c', margin: 0, fontSize: '13px' }}>Manage primary contact keys, communication hooks, and billing linkages.</p>
         </div>
-        <Button type="primary" size="large" icon={<PlusOutlined />} onClick={handleOpenCreate}>
-          Add New Guardian
-        </Button>
+        <Space wrap>
+          {isDirector && (
+            <Button type="primary" size="large" icon={<KeyOutlined />} onClick={() => setKeyModalOpen(true)}>
+              Generate Access Key
+            </Button>
+          )}
+          {isAdmin && (
+            <Button type="primary" size="large" icon={<PlusOutlined />} onClick={handleOpenCreate}>
+              Add New Guardian
+            </Button>
+          )}
+        </Space>
       </div>
 
       <Card className="filter-card" bordered={false} style={{ marginBottom: '24px' }}>
@@ -230,6 +263,17 @@ export const ParentsDirectory: React.FC<ParentsDirectoryProps> = ({ openCreateOn
         }} 
         parentData={selectedParent} 
         onSuccess={() => fetchParents(pagination.current)}
+      />
+
+      <GenerateAccessKeyModal
+        visible={keyModalOpen}
+        onClose={() => setKeyModalOpen(false)}
+      />
+
+      <ConsentFormModal
+        visible={consentModalOpen}
+        parentId={consentParentId}
+        onClose={() => { setConsentModalOpen(false); setConsentParentId(null); }}
       />
     </div>
   );

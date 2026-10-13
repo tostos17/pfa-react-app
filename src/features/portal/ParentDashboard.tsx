@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Avatar, Tag, Row, Col, Typography, Spin, Timeline, Alert, Table, Select, Empty, Statistic, Tabs, Divider, Space } from 'antd';
-import { UserOutlined, CalendarOutlined, TrophyOutlined, WalletOutlined, FileTextOutlined, ContactsOutlined } from '@ant-design/icons';
+import { Card, Avatar, Tag, Row, Col, Typography, Spin, Timeline, Alert, Table, Select, Empty, Statistic, Tabs, Divider, Space, Button } from 'antd';
+import { UserOutlined, CalendarOutlined, TrophyOutlined, WalletOutlined, FileTextOutlined, ContactsOutlined, UserAddOutlined } from '@ant-design/icons';
 import { apiClient } from '../../config/axios';
 import { LogoutButton } from '../auth/LogoutButton';
+import { RegisterChildDrawer } from './RegisterChildDrawer';
 import './ParentDashboard.scss';
 
 const { Title, Text } = Typography;
@@ -15,6 +16,8 @@ export const ParentDashboard: React.FC = () => {
     const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
     const [childDetails, setChildDetails] = useState<any>(null);
     const [loadingChild, setLoadingChild] = useState<boolean>(false);
+    const [registerOpen, setRegisterOpen] = useState<boolean>(false);
+    const [reloadKey, setReloadKey] = useState<number>(0);
 
     useEffect(() => {
         const fetchDashboard = async () => {
@@ -24,7 +27,7 @@ export const ParentDashboard: React.FC = () => {
                 setDashboardData(data);
                 
                 if (data.children && data.children.length > 0) {
-                    setSelectedChildId(data.children[0].id);
+                    setSelectedChildId((prev) => prev ?? data.children[0].id);
                 }
             } catch (err) {
                 console.error("Failed to retrieve parent portal data.");
@@ -33,7 +36,7 @@ export const ParentDashboard: React.FC = () => {
             }
         };
         fetchDashboard();
-    }, []);
+    }, [reloadKey]);
 
     useEffect(() => {
         if (!selectedChildId) return;
@@ -218,6 +221,9 @@ export const ParentDashboard: React.FC = () => {
                                     <Option key={c.id} value={c.id}>{c.firstName} {c.lastName}</Option>
                                 ))}
                             </Select>
+                            <Button type="primary" icon={<UserAddOutlined />} onClick={() => setRegisterOpen(true)}>
+                                Register Child
+                            </Button>
                         </Space>
                     </Card>
 
@@ -334,6 +340,12 @@ export const ParentDashboard: React.FC = () => {
                     </Row>
                 </TabPane>
             </Tabs>
+
+            <RegisterChildDrawer
+                open={registerOpen}
+                onClose={() => setRegisterOpen(false)}
+                onSuccess={() => { setRegisterOpen(false); setReloadKey((k) => k + 1); }}
+            />
         </div>
     );
 };
